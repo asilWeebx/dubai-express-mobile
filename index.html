@@ -1,0 +1,2825 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>Dubai Express Mobile</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <!-- Xarita (yetkazish joyini belgilash) — OpenStreetMap, kalitsiz -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>document.write('<script src="./config.js?_='+Date.now()+'"><\/script>')</script>
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f6f6f7;
+      color: #161616;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      letter-spacing: -0.005em;
+    }
+    ::-webkit-scrollbar { width: 0; height: 0; }
+    input, select, button, textarea { font-family: inherit; }
+    input:focus, select:focus { outline: none; }
+    button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+    /* ── Design tokens — Dubai Express Mobile (qizil / oq / qora) ─── */
+    :root {
+      --bg: #f6f6f7;                /* toza oq-kulrang sahifa foni */
+      --bg-card: #ffffff;           /* karta yuzasi */
+      --bg-soft: #eeeded;           /* chuqurroq kulrang */
+      --bg-muted: #f3f2f2;          /* yumshoq muted */
+      --ink: #161616;               /* asosiy — qora (logo) */
+      --ink-soft: #565656;          /* ikkilamchi matn */
+      --ink-faint: #9a9a9a;         /* uchlamchi / meta */
+      --sage: #d40707;              /* asosiy urg'u — brend qizili */
+      --sage-deep: #a80505;         /* hover / bosilgan */
+      --sage-tint: #fce8e9;         /* qizil tint fon */
+      --clay: #d40707;              /* badge/sale — qizil */
+      --clay-tint: #fce8e9;
+      --line: #e7e5e5;              /* nozik chegaralar */
+      --line-soft: #f1efef;
+      --shadow-soft: 0 1px 2px rgba(20,20,20,0.05), 0 4px 16px rgba(20,20,20,0.06);
+      --shadow-card: 0 1px 3px rgba(20,20,20,0.06), 0 8px 28px rgba(20,20,20,0.07);
+      --shadow-float: 0 4px 24px rgba(20,20,20,0.10), 0 12px 48px rgba(20,20,20,0.08);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --radius-pill: 999px;
+      /* Compatibility shims for the JS that references these */
+      --accent: #d40707;
+      --accent-dark: #a80505;
+      --accent-bg: rgba(212,7,7,0.10);
+      --coral: #d40707;
+      --coral-dark: #a80505;
+    }
+
+    /* ── Utility ─────────────────────────── */
+    .clamp1 { display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden; }
+    .clamp2 { display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+    .clamp3 { display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden; }
+
+    /* ── Animations ──────────────────────── */
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+    @keyframes popIn   { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:none} }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:none} }
+    .fade-up  { animation: fadeUp  .42s cubic-bezier(.16,1,.3,1) both; }
+    .fade-in  { animation: fadeIn  .25s ease both; }
+    .pop-in   { animation: popIn   .3s cubic-bezier(.34,1.4,.64,1) both; }
+    .slide-up { animation: slideUp .36s cubic-bezier(.32,.72,0,1) both; }
+
+    /* ── Header ──────────────────────────── */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.90);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--line);
+    }
+    .header-inner {
+      max-width: 1400px; margin: 0 auto;
+      padding: 0 28px;
+      height: 72px;
+      display: flex; align-items: center; gap: 20px;
+    }
+    .header-logo {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 21px; font-weight: 800; color: var(--ink);
+      white-space: nowrap; letter-spacing: -0.02em; flex-shrink: 0;
+      display: flex; align-items: center; gap: 9px;
+    }
+    .header-logo img { height: 38px; width: auto; display: block; }
+    .header-logo b { font-weight: 800; }
+    .header-logo span { color: var(--sage); font-weight: 800; }
+    .header-logo small { color: var(--ink-faint); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    @media (max-width: 640px) { .header-logo .brand-txt { display: none; } .header-logo img { height: 34px; } }
+    .header-search {
+      flex: 1; max-width: 440px;
+      display: flex; align-items: center; gap: 10px;
+      background: var(--bg-card); border: 1px solid var(--line);
+      border-radius: var(--radius-pill);
+      padding: 0 18px; height: 44px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .header-search:focus-within {
+      border-color: var(--sage);
+      box-shadow: 0 0 0 3px var(--sage-tint);
+    }
+    .header-search svg { color: var(--ink-faint); flex-shrink: 0; }
+    .header-search input {
+      flex: 1; border: none; background: transparent;
+      font-size: 14px; font-weight: 400; color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .header-search input::placeholder { color: var(--ink-faint); font-weight: 400; }
+    .header-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
+    .icon-btn {
+      position: relative; width: 44px; height: 44px;
+      border-radius: 50%; border: 1px solid var(--line);
+      background: var(--bg-card);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-soft); transition: all .2s ease;
+    }
+    .icon-btn:hover {
+      background: var(--sage-tint); color: var(--sage-deep);
+      border-color: var(--sage-tint);
+    }
+    .badge {
+      position: absolute; top: -2px; right: -2px;
+      background: var(--clay); color: #fff;
+      font-size: 10px; font-weight: 700;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--bg);
+      font-family: 'Montserrat', sans-serif;
+    }
+    .login-btn {
+      height: 40px; padding: 0 20px; border-radius: var(--radius-pill);
+      border: 1px solid var(--line); background: var(--bg-card);
+      font-size: 13px; font-weight: 600; color: var(--ink);
+      transition: all .2s ease; letter-spacing: -0.01em;
+    }
+    .login-btn:hover {
+      border-color: var(--sage); color: var(--sage-deep);
+      background: var(--sage-tint);
+    }
+    .avatar-btn {
+      width: 40px; height: 40px; border-radius: 50%; border: none;
+      background: var(--sage); color: #fff; font-weight: 700; font-size: 14px;
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      transition: background .2s;
+    }
+    .avatar-btn:hover { background: var(--sage-deep); }
+
+    /* ── Category Bar ────────────────────── */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cat-bar {
+      position: sticky; top: 72px; z-index: 99;
+      animation: slideDown 0.4s ease-out;
+      transition: background-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+                  box-shadow 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+                  border-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    .cat-bar-stuck {
+      background: rgba(250,247,242,0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 2px 12px rgba(43,38,32,0.05);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .cat-bar-inner {
+      max-width: 1400px; margin: 0 auto; padding: 14px 28px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      overflow-x: auto; scrollbar-width: none;
+      height: auto;
+      transition: padding 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    .cat-bar-inner::-webkit-scrollbar { display: none; }
+    .cat-bar-stuck .cat-bar-inner { padding: 8px 28px; }
+    .cat-chip {
+      flex-shrink: 0; height: 64px; padding: 14px 22px 14px 10px;
+      border-radius: var(--radius); border: 1px solid var(--line);
+      background: var(--bg-card); font-size: 14px; font-weight: 500; color: var(--ink);
+      letter-spacing: -0.01em;
+      transition: all 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+      position: relative; cursor: pointer; display: inline-flex;
+      align-items: center; gap: 12px; overflow: visible;
+    }
+    .cat-bar-stuck .cat-chip {
+      height: 42px; padding: 8px 16px 8px 6px; font-size: 12.5px; gap: 8px;
+    }
+    .cat-chip:hover {
+      background: var(--sage-tint); color: var(--sage-deep); border-color: var(--sage-tint);
+    }
+    .cat-chip.active {
+      background: var(--ink); border-color: var(--ink); color: #fff;
+      box-shadow: 0 4px 14px rgba(43,38,32,0.18);
+    }
+
+    /* sub-kategoriya qatori (top'ning ostida) */
+    .cat-bar-sub { top: 136px; z-index: 98; }
+    .cat-bar-sub .cat-bar-inner { height: 52px; }
+    .cat-chip-sub { height: 36px; font-size: 12.5px; padding: 0 18px; font-weight: 500; }
+    .cat-chip-sub.active {
+      background: var(--sage); border-color: var(--sage); color: #fff;
+      box-shadow: 0 3px 10px rgba(212,7,7,0.3);
+    }
+
+    /* ── Page body ───────────────────────── */
+    .page-body {
+      max-width: 1400px; margin: 0 auto;
+      padding: 36px 28px 100px;
+    }
+    .page-title {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 36px; font-weight: 700; color: var(--ink);
+      letter-spacing: -0.025em; margin-bottom: 28px;
+      scroll-margin-top: 220px;
+      line-height: 1.1;
+    }
+    .page-title span { color: var(--ink-faint); font-weight: 400; font-size: 17px; margin-left: 12px; font-family: 'Montserrat', sans-serif; letter-spacing: -0.01em; }
+    @media (max-width: 640px) { .page-title { scroll-margin-top: 170px; font-size: 28px; } }
+
+    /* ── Category Sections (Barchasi ko'rinishi) ─── */
+    .cat-sections { display: flex; flex-direction: column; gap: 56px; }
+    .cat-section { scroll-margin-top: 180px; }
+    .cat-section-title {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 26px; font-weight: 700; color: var(--ink);
+      letter-spacing: -0.02em; margin-bottom: 22px;
+      line-height: 1.2;
+    }
+    @media (max-width: 640px) {
+      .cat-section { scroll-margin-top: 140px; }
+      .cat-section-title { font-size: 21px; margin-bottom: 16px; }
+    }
+
+    /* ── Product Grid ────────────────────── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 36px 24px;
+    }
+    @media (max-width: 1200px) { .product-grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 860px)  { .product-grid { grid-template-columns: repeat(2,1fr); gap: 28px 16px; } }
+    @media (max-width: 480px)  { .product-grid { grid-template-columns: repeat(2,1fr); gap: 22px 12px; } }
+    @media (max-width: 340px)  { .product-grid { grid-template-columns: 1fr; } }
+
+    /* ── Top tovarlar (tavsiya karusel) ──── */
+    .top-rail-wrap { margin: 4px 0 32px; }
+    .top-rail-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .top-rail-head h2 { font-size: 20px; font-weight: 800; color: #111; margin: 0; }
+    .top-rail-badge { font-size: 12px; font-weight: 700; color: #e8590c; background: #fff4e6; padding: 3px 11px; border-radius: 20px; white-space: nowrap; }
+    .top-rail { display: flex; gap: 24px; overflow-x: auto; padding: 4px 2px 12px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+    .top-rail::-webkit-scrollbar { height: 6px; }
+    .top-rail::-webkit-scrollbar-track { background: transparent; }
+    .top-rail::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 3px; }
+    .top-rail-item { flex: 0 0 auto; width: 210px; scroll-snap-align: start; }
+    @media (max-width: 860px) { .top-rail { gap: 16px; } .top-rail-item { width: 170px; } }
+    @media (max-width: 480px) { .top-rail-item { width: 150px; } .top-rail-head h2 { font-size: 18px; } }
+
+    /* ── Product Item ─────────────────────── */
+    .product-item {
+      display: flex; flex-direction: column; gap: 0;
+      cursor: pointer;
+      transition: transform .3s cubic-bezier(.16,1,.3,1);
+    }
+    .product-item:hover { transform: translateY(-3px); }
+    .product-img-wrap {
+      position: relative;
+      background: var(--bg-muted);
+      border-radius: var(--radius);
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+      transition: background .25s, box-shadow .25s;
+      cursor: zoom-in;
+    }
+    .product-item:hover .product-img-wrap {
+      background: var(--bg-soft);
+      box-shadow: var(--shadow-card);
+    }
+    .product-img-wrap img {
+      width: 90%; height: 90%;
+      object-fit: contain;
+      display: block;
+      border-radius: var(--radius);
+      transition: transform .5s cubic-bezier(.16,1,.3,1);
+    }
+    .product-item:hover .product-img-wrap img { transform: scale(1.06); }
+    .product-no-img {
+      width: 56px; height: 56px; opacity: .2;
+    }
+    .stock-out-overlay {
+      position: absolute; inset: 0; border-radius: var(--radius);
+      background: rgba(250,247,242,0.78);
+      backdrop-filter: blur(2px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .stock-out-tag {
+      background: var(--bg-card); color: var(--ink-soft);
+      font-size: 11px; font-weight: 600;
+      padding: 6px 14px; border-radius: var(--radius-pill);
+      letter-spacing: .04em; text-transform: uppercase;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-soft);
+    }
+    .in-cart-dot {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--sage); color: #fff;
+      font-size: 11px; font-weight: 700;
+      min-width: 22px; height: 22px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 6px;
+      box-shadow: 0 2px 8px rgba(212,7,7,0.4);
+      font-family: 'Montserrat', sans-serif;
+    }
+    .product-name {
+      font-size: 14px; font-weight: 600; color: var(--ink);
+      line-height: 1.4; margin-bottom: 5px;
+      letter-spacing: -0.01em;
+    }
+    .product-meta {
+      font-size: 12px; color: var(--ink-faint); margin-bottom: 8px; line-height: 1.4;
+      font-weight: 400;
+    }
+    .product-price {
+      font-size: 17px; font-weight: 600; color: var(--ink);
+      letter-spacing: -0.015em; margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .unit-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .unit-label { font-size: 11px; color: var(--ink-faint); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+    .unit-select-wrap { position: relative; }
+    .unit-select {
+      height: 30px; padding: 0 26px 0 12px;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: var(--bg-card); font-size: 12px; color: var(--ink); font-weight: 500;
+      -webkit-appearance: none; appearance: none; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .unit-select:focus, .unit-select:hover { border-color: var(--sage); }
+    .unit-caret {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      pointer-events: none; color: var(--ink-faint);
+    }
+    .controls-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: auto;
+    }
+    .qty-wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      overflow: hidden; flex: 1;
+      background: var(--bg-card);
+      transition: border-color .2s ease, box-shadow .2s ease;
+      animation: qtyWrapIn .28s cubic-bezier(.34,1.56,.64,1);
+    }
+    @media (min-width: 641px) {
+      .qty-wrap { flex: 0 0 auto; width: 68%; margin: 0 auto; }
+    }
+    .qty-wrap:hover { border-color: var(--sage); box-shadow: 0 2px 10px rgba(212,7,7,.1); }
+    @keyframes qtyWrapIn {
+      0% { transform: scale(1.1); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .qty-btn {
+      width: 36px; height: 38px; flex: 0 0 36px; border: none; background: transparent;
+      padding: 8px;
+      font-size: 18px; color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+      transition: background .15s ease, color .15s ease, transform .12s ease; font-weight: 400;
+    }
+    .qty-btn:hover { background: var(--sage-tint); color: var(--sage-deep); }
+    .qty-btn:active { background: var(--sage-tint); transform: scale(.88); }
+    .qty-num {
+      width: 32px; text-align: center; font-size: 14px; font-weight: 600; color: var(--ink);
+      border: none;
+      line-height: 38px;
+      transition: transform .15s ease, color .15s ease;
+    }
+    .qty-wrap:has(.qty-btn:active) .qty-num { animation: qtyPop .22s ease; }
+    @keyframes qtyPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.18); color: var(--sage-deep); }
+      100% { transform: scale(1); }
+    }
+    .add-btn {
+      flex: 1; height: 42px; border-radius: var(--radius-sm); border: none;
+      background: var(--ink); color: #fff;
+      font-size: 13px; font-weight: 600;
+      letter-spacing: -0.01em;
+      box-shadow: 0 2px 8px rgba(43,38,32,0.15);
+      transition: background .2s ease, box-shadow .2s ease,
+                  transform .22s cubic-bezier(.34,1.56,.64,1), border-radius .22s ease;
+      white-space: nowrap;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .add-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
+    @media (hover: hover) {
+      .add-btn:hover:not(.btn-added):not(:disabled) {
+        background: var(--sage); box-shadow: 0 4px 14px rgba(212,7,7,0.35);
+      }
+      .add-btn:active:not(.btn-added):not(:disabled) {
+        transform: scaleX(.85) scaleY(.92);
+        border-radius: 21px;
+      }
+    }
+    .add-btn.btn-added {
+      background: var(--sage) !important; color: #fff !important;
+      box-shadow: 0 2px 10px rgba(212,7,7,0.4) !important;
+      pointer-events: none;
+    }
+
+    /* Skeleton */
+    .skel {
+      background: linear-gradient(90deg, var(--bg-muted) 25%, var(--bg-soft) 50%, var(--bg-muted) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s infinite;
+      border-radius: var(--radius);
+    }
+
+    /* ── Empty / Error ────────────────────── */
+    .state-center {
+      grid-column: 1/-1; text-align: center; padding: 80px 20px;
+    }
+    .state-emoji { font-size: 44px; margin-bottom: 16px; }
+    .state-text  { font-size: 15px; color: var(--ink-soft); font-weight: 400; }
+
+    /* ── Overlay / Sheet ─────────────────── */
+    .overlay-bg {
+      position: fixed; inset: 0; z-index: 9100;
+    }
+    .overlay-dim {
+      position: absolute; inset: 0; background: rgba(43,38,32,0.4);
+      backdrop-filter: blur(4px);
+    }
+    .bottom-sheet {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--bg); border-radius: 24px 24px 0 0;
+      max-height: 90vh; display: flex; flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -8px 40px rgba(43,38,32,0.15);
+    }
+    .sheet-handle {
+      width: 40px; height: 4px; background: var(--line); border-radius: 2px;
+      margin: 14px auto 4px;
+    }
+    .sheet-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 6px 22px 16px;
+    }
+    .sheet-title {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 19px; font-weight: 600; color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .close-btn {
+      width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
+      background: var(--bg-card); display: flex; align-items: center; justify-content: center;
+      color: var(--ink-soft); transition: all .2s;
+    }
+    .close-btn:hover { background: var(--sage-tint); color: var(--sage-deep); border-color: var(--sage-tint); }
+    .sheet-body { flex: 1; overflow-y: auto; padding: 0 0 8px; }
+    .sheet-footer { padding: 14px 22px 34px; border-top: 1px solid var(--line-soft); }
+
+    /* ── Cart ─────────────────────────────── */
+    .cart-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 22px; border-bottom: 1px solid var(--line-soft);
+    }
+    .cart-thumb {
+      width: 56px; height: 56px; border-radius: 12px;
+      background: var(--bg-muted); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .cart-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .cart-info { flex: 1; min-width: 0; }
+    .cart-name  { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .cart-price { font-size: 12px; color: var(--sage-deep); font-weight: 600; margin-top: 2px; }
+    .cart-qty-row { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .mini-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line);
+      background: var(--bg-card); font-size: 14px; color: var(--ink-soft);
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .mini-btn:hover { background: var(--sage-tint); color: var(--sage-deep); border-color: var(--sage-tint); }
+    .mini-qty { width: 24px; text-align: center; font-size: 13px; font-weight: 600; }
+
+    /* ── Checkout form ─────────────────────── */
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .06em; }
+    .form-input {
+      height: 48px; border: 1px solid var(--line); border-radius: var(--radius-sm);
+      padding: 0 16px; font-size: 14px; color: var(--ink); background: var(--bg-card);
+      transition: border-color .15s, box-shadow .15s;
+      font-weight: 400;
+    }
+    .form-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-tint); background: var(--bg-card); }
+    .primary-btn {
+      width: 100%; height: 50px; border-radius: var(--radius-sm); border: none;
+      background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
+      box-shadow: 0 2px 10px rgba(43,38,32,0.2);
+      transition: all .2s;
+      letter-spacing: -0.01em;
+    }
+    .primary-btn:hover { background: var(--sage); box-shadow: 0 4px 14px rgba(212,7,7,0.35); }
+    .primary-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
+    .dark-btn {
+      width: 100%; height: 48px; border-radius: var(--radius-sm); border: none;
+      background: var(--ink); color: #fff; font-size: 14px; font-weight: 600;
+      transition: background .2s;
+    }
+    .dark-btn:hover { background: var(--sage); }
+    .err-box {
+      background: var(--clay-tint); color: var(--clay); border-radius: var(--radius-sm);
+      padding: 12px 16px; font-size: 13px; font-weight: 500;
+      border: 1px solid rgba(212,7,7,0.25);
+    }
+    .total-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 18px; background: var(--bg-muted); border-radius: var(--radius-sm);
+    }
+    .total-label { font-size: 15px; color: var(--ink-soft); font-weight: 500; }
+    .total-val   { font-size: 18px; font-weight: 600; color: var(--ink); letter-spacing: -0.015em; }
+
+    /* ── Success modal ────────────────────── */
+    .modal-center {
+      position: fixed; inset: 0; z-index: 9200;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(43,38,32,0.5); backdrop-filter: blur(6px); padding: 20px;
+    }
+    .modal-card {
+      background: var(--bg); border-radius: 24px; padding: 44px 32px;
+      text-align: center; width: 100%; max-width: 380px;
+      box-shadow: var(--shadow-float);
+    }
+    .success-icon {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: var(--sage-tint);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 22px; font-size: 36px;
+    }
+
+    /* ── Customer portal ──────────────────────── */
+    .portal-sheet {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--bg); border-radius: 28px 28px 0 0;
+      max-height: 88vh; display: flex; flex-direction: column;
+      overflow: hidden; max-width: 560px; margin: 0 auto;
+      box-shadow: 0 -8px 40px rgba(43,38,32,0.15);
+    }
+    .portal-handle { width: 40px; height: 4px; background: var(--line); border-radius: 2px; margin: 14px auto 0; flex-shrink: 0; }
+    .portal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px 0; flex-shrink: 0; }
+    .portal-title {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 22px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em;
+    }
+    .portal-logout { height: 34px; padding: 0 16px; border-radius: var(--radius-pill); border: 1px solid var(--clay-tint); background: var(--clay-tint); color: var(--clay); font-weight: 600; font-size: 12px; cursor: pointer; transition: all .2s; }
+    .portal-logout:hover { background: var(--clay); color: #fff; border-color: var(--clay); }
+    .portal-tabs { display: flex; padding: 16px 22px 0; gap: 4px; flex-shrink: 0; border-bottom: 1px solid var(--line-soft); }
+    .portal-tab { flex: 1; padding: 8px 4px 12px; border: none; background: transparent; font-size: 12px; font-weight: 500; color: var(--ink-faint); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; white-space: nowrap; letter-spacing: -0.01em; }
+    .portal-tab.active { color: var(--sage-deep); border-bottom-color: var(--sage); font-weight: 600; }
+    .portal-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 18px 22px 36px; display: flex; flex-direction: column; gap: 12px; }
+    /* profile card */
+    .portal-profile-card { background: var(--bg-card); border: 1px solid var(--line-soft); border-radius: 20px; padding: 22px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-soft); }
+    .portal-avatar { width: 54px; height: 54px; border-radius: 50%; background: var(--sage); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: #fff; flex-shrink: 0; font-family: 'Montserrat', -apple-system, sans-serif; }
+    .portal-profile-info { flex: 1; min-width: 0; }
+    .portal-profile-label { font-size: 10px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+    .portal-profile-name { font-size: 17px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.015em; }
+    .portal-profile-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+    .portal-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .portal-stat { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--line-soft); background: var(--bg-card); }
+    .portal-stat.debt { background: var(--clay-tint); border-color: rgba(212,7,7,0.2); }
+    .portal-stat.credit { background: var(--sage-tint); border-color: rgba(212,7,7,0.2); }
+    .portal-stat-label { font-size: 10px; color: var(--ink-faint); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
+    .portal-stat-val { font-size: 17px; font-weight: 700; color: var(--ink-soft); letter-spacing: -0.015em; }
+    .portal-stat.debt .portal-stat-val { color: var(--clay); }
+    .portal-stat.credit .portal-stat-val { color: var(--sage-deep); }
+    /* list items */
+    .portal-list-item { border: 1px solid var(--line-soft); border-radius: 14px; overflow: hidden; background: var(--bg-card); }
+    .portal-list-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; cursor: pointer; background: var(--bg-card); min-height: 54px; }
+    .portal-list-no { font-weight: 600; font-size: 13px; color: var(--ink); min-height: 16px; letter-spacing: -0.01em; }
+    .portal-list-date { font-size: 11px; color: var(--ink-faint); margin-top: 2px; min-height: 14px; }
+    .portal-list-total { font-weight: 700; font-size: 14px; color: var(--ink); white-space: nowrap; letter-spacing: -0.015em; }
+    .portal-list-detail { border-top: 1px solid var(--line-soft); padding: 12px 18px; display: flex; flex-direction: column; gap: 6px; background: var(--bg-muted); }
+    .portal-list-product { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink-soft); }
+    .portal-status { font-size: 11px; font-weight: 600; border-radius: var(--radius-pill); padding: 4px 12px; }
+    .portal-payment-item { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line-soft); border-radius: 14px; padding: 14px 16px; background: var(--bg-card); }
+    .portal-pay-amount { font-weight: 700; font-size: 15px; color: var(--sage-deep); letter-spacing: -0.015em; }
+    .portal-pay-date { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+    .portal-pay-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--sage-tint); display: flex; align-items: center; justify-content: center; color: var(--sage-deep); font-size: 16px; font-weight: 700; flex-shrink: 0; }
+    .portal-empty { text-align: center; padding: 48px 20px; color: var(--ink-faint); font-size: 14px; font-weight: 500; }
+    .portal-loading { text-align: center; padding: 48px 20px; color: var(--ink-faint); font-size: 14px; }
+    /* ── Tab bar (legacy) ─────────────────────── */
+    .tab-bar { display: flex; border-bottom: 1px solid var(--line-soft); }
+    .tab-btn { flex: 1; padding: 12px 4px; border: none; background: transparent; font-size: 12px; color: var(--ink-faint); font-weight: 500; border-bottom: 2px solid transparent; transition: all .2s; }
+    .tab-btn.active { color: var(--sage-deep); font-weight: 600; border-bottom-color: var(--sage); }
+
+    /* ── Responsive tweaks ─────────────────── */
+    @media (max-width: 640px) {
+      .header-inner { padding: 0 16px; height: 60px; gap: 12px; }
+      .header-logo  { font-size: 18px; }
+      .header-search { height: 40px; }
+      .page-body    { padding: 24px 16px 100px; }
+      .page-title   { font-size: 26px; margin-bottom: 20px; }
+      .cat-bar      { top: 60px; }
+      .cat-bar-sub  { top: auto; }
+      .cat-bar-inner{ padding: 10px 16px; gap: 12px; }
+      .cat-chip { height: 58px; padding: 10px 18px 10px 8px; font-size: 13px; gap: 10px; }
+      .cat-chip-thumb { width: 44px; height: 44px; }
+      .cat-bar-stuck .cat-chip { height: 40px; padding: 6px 14px 6px 6px; font-size: 12px; gap: 6px; }
+      .cat-bar-stuck .cat-chip-thumb { width: 26px; height: 26px; }
+      .cat-chip-sub { height: 32px; padding: 0 14px; font-size: 12px; }
+      .product-name { font-size: 13px; }
+      .product-price{ font-size: 15px; }
+      .icon-btn { width: 40px; height: 40px; }
+      .login-btn { height: 36px; padding: 0 14px; font-size: 12px; }
+      .avatar-btn { width: 36px; height: 36px; font-size: 13px; }
+      .add-btn { height: 40px; font-size: 12.5px; }
+    }
+    @media (max-width: 480px) {
+      .header-search { display: none; }
+      .mobile-search-shown .header-search { display: flex; position: absolute; left: 16px; right: 16px; top: 50%; transform: translateY(-50%); max-width: none; }
+    }
+
+    /* ── Bottom Nav ──────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 18px; left: 50%;
+      transform: translateX(-50%);
+      width: 75%; max-width: 380px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-pill);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 16px;
+      z-index: 9000; gap: 4px;
+      box-shadow: 0 8px 32px rgba(43,38,32,0.12), 0 2px 8px rgba(43,38,32,0.06);
+    }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      flex: 1; border: none; background: transparent; padding: 6px 0;
+      border-radius: 20px; cursor: pointer; color: var(--ink-faint);
+      transition: all .25s ease; -webkit-tap-highlight-color: transparent;
+    }
+    .nav-icon-wrap {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 30px; border-radius: 14px; transition: .3s ease;
+    }
+    .nav-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; transition: .3s ease; }
+    .nav-label {
+      font-size: 9.5px; font-weight: 600; margin-top: 3px; color: currentColor;
+      letter-spacing: .02em; transition: transform .25s ease;
+    }
+    .nav-btn.nav-active { color: var(--sage-deep); }
+    .nav-btn.nav-active .nav-icon-wrap {
+      background: var(--sage-tint);
+    }
+    .nav-btn:active .nav-icon-wrap { transform: scale(.88); }
+    @media (hover: hover) {
+      .nav-btn:hover { color: var(--ink); }
+      .nav-btn:hover .nav-icon-wrap {
+        background: var(--bg-soft);
+        transform: translateY(-2px);
+      }
+      .nav-btn:hover svg { transform: scale(1.1); }
+      .nav-btn.nav-active:hover .nav-icon-wrap { background: var(--sage-tint); }
+      .nav-btn:hover .nav-label { transform: translateY(1px); }
+    }
+    .nav-cart-badge {
+      position: absolute; top: -3px; right: 2px;
+      background: var(--clay);
+      color: #fff; font-size: 9px; font-weight: 700;
+      min-width: 16px; height: 16px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 4px; border: 2px solid var(--bg);
+      opacity: 0; transform: scale(.5);
+      transition: .3s cubic-bezier(.175,.885,.32,1.275);
+      font-family: 'Montserrat', sans-serif;
+    }
+    .nav-cart-badge.show { opacity: 1; transform: scale(1); }
+    @keyframes navBounce {
+      0%{transform:scale(1)} 40%{transform:scale(1.4)} 60%{transform:scale(.85)} 80%{transform:scale(1.1)} 100%{transform:scale(1)}
+    }
+    .nav-bounce { animation: navBounce .5s cubic-bezier(.25,.8,.25,1); }
+
+    /* ── Category Drawer ─────────────────────── */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(43,38,32,0.4); z-index: 9990;
+      opacity: 0; transition: opacity .3s ease;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .cat-drawer {
+      position: fixed; top: 0; right: 0;
+      width: 86%; max-width: 380px; height: 100vh;
+      background: rgba(250,247,242,0.97);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      z-index: 9995; display: flex; flex-direction: column;
+      box-shadow: -12px 0 45px rgba(43,38,32,0.15);
+      transform: translateX(100%); visibility: hidden;
+      transition: transform .35s cubic-bezier(.4,0,.2,1), visibility .35s;
+    }
+    .cat-drawer.open { transform: translateX(0); visibility: visible; }
+    .cat-drawer-head {
+      padding: 32px 20px 16px;
+      background: rgba(250,247,242,0.85);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .cat-drawer-head h2 {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 28px; font-weight: 700; color: var(--ink);
+      margin: 0 0 18px; letter-spacing: -0.025em;
+    }
+    .cat-drawer-search {
+      position: relative; border-radius: var(--radius-pill);
+    }
+    .cat-drawer-search::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--bg-card); border: 1px solid var(--line);
+      border-radius: var(--radius-pill); z-index: 1;
+      transition: border-color .2s;
+    }
+    .cat-drawer-search:focus-within::before { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-tint); }
+    .cat-drawer-search input {
+      position: relative; z-index: 2;
+      width: 100%; padding: 14px 20px;
+      border-radius: var(--radius-pill); border: none; background: transparent;
+      color: var(--ink); font-size: 14px; font-weight: 500; outline: none;
+      box-sizing: border-box;
+    }
+    .cat-drawer-list { flex: 1; overflow-y: auto; padding: 16px 16px 100px; }
+    .drawer-cat-item {
+      background: var(--bg-card); border-radius: 16px; margin-bottom: 10px;
+      box-shadow: var(--shadow-soft); overflow: hidden;
+      border: 1px solid var(--line-soft);
+    }
+    .drawer-cat-btn {
+      width: 100%; display: flex; align-items: center; padding: 16px 18px;
+      border: none; background: transparent; cursor: pointer; text-align: left;
+      font-size: 14.5px; font-weight: 600; color: var(--ink); font-family: inherit;
+      transition: background .2s;
+      letter-spacing: -0.01em;
+    }
+    .drawer-cat-btn:hover { background: var(--sage-tint); }
+    .drawer-cat-btn.dc-active { background: var(--sage-tint); color: var(--sage-deep); }
+    .drawer-cat-btn .dc-label { flex: 1; }
+    .dc-thumb { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; flex-shrink: 0; margin-right: 12px; }
+    .dc-sub .dc-thumb { width: 28px; height: 28px; border-radius: 8px; margin-right: 0; }
+    .drawer-cat-btn .dc-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--sage); opacity: 0; flex-shrink: 0;
+      transition: opacity .2s;
+    }
+    .drawer-cat-btn.dc-active .dc-dot { opacity: 1; }
+    /* expandable parent → sub */
+    .dc-chevron {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      background: var(--bg-muted); color: var(--ink-faint); display: flex; align-items: center; justify-content: center;
+      transition: transform .2s, background .2s, color .2s;
+    }
+    .dc-chevron.open { background: var(--sage); color: #fff; transform: rotate(180deg); }
+    .dc-sub {
+      width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 18px;
+      border: none; border-top: 1px solid var(--line-soft); background: transparent; cursor: pointer;
+      text-align: left; font-size: 13.5px; font-weight: 500; color: var(--ink-soft); font-family: inherit;
+      transition: background .15s;
+      letter-spacing: -0.01em;
+    }
+    .dc-sub:hover { background: var(--sage-tint); color: var(--sage-deep); }
+    .dc-sub.dc-active { background: var(--sage-tint); color: var(--sage-deep); font-weight: 600; }
+    .dc-sub .dc-bar { width: 3px; height: 16px; border-radius: 2px; background: var(--line); flex-shrink: 0; }
+    .dc-sub.dc-active .dc-bar { background: var(--sage); }
+    .dc-sub .dc-label { flex: 1; }
+
+    @media (max-width: 640px) {
+      .cat-drawer { width: 82%; max-width: 320px; }
+      .cat-drawer-head { padding: 22px 16px 12px; }
+      .cat-drawer-head h2 { font-size: 22px; margin-bottom: 12px; }
+      .cat-drawer-search input { padding: 12px 16px; font-size: 13px; }
+      .cat-drawer-list { padding: 12px 12px 90px; }
+      .drawer-cat-item { border-radius: 14px; margin-bottom: 8px; }
+      .drawer-cat-btn { padding: 13px 15px; font-size: 13px; }
+      .dc-thumb { width: 28px; height: 28px; border-radius: 8px; margin-right: 10px; }
+      .dc-sub .dc-thumb { width: 22px; height: 22px; }
+      .dc-sub { padding: 11px 15px; font-size: 12.5px; gap: 10px; }
+      .dc-chevron { width: 22px; height: 22px; }
+    }
+
+    /* ── Magic orb ───────────────────────────── */
+    .magic-orb {
+      position: fixed; z-index: 99999;
+      width: 18px; height: 18px;
+      background: var(--sage); border-radius: 50%;
+      box-shadow: 0 0 15px 5px rgba(212,7,7,0.6);
+      pointer-events: none;
+      transition: top .6s cubic-bezier(.5,-.5,.2,1), left .6s cubic-bezier(.2,.8,.2,1),
+                  transform .6s ease, opacity .6s ease;
+    }
+
+    /* extra bottom padding for nav */
+    .page-body { padding-bottom: 110px !important; }
+
+    /* ── Kategoriya chip rasmi ── */
+    .cat-chip-thumb {
+      width: 48px; height: 48px; border-radius: 10px; object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(43,38,32,0.08);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  width 0.22s cubic-bezier(0.22, 0.61, 0.36, 1), height 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    .cat-bar-stuck .cat-chip-thumb {
+      width: 28px; height: 28px; border-radius: 8px;
+    }
+    .cat-chip:hover .cat-chip-thumb {
+      transform: scale(1.06);
+    }
+
+    /* ── Sub-kategoriyasi bor chip'lardagi strelka ── */
+    .cat-chip-arrow {
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--ink-faint); flex-shrink: 0; margin-left: -4px; padding: 4px; border-radius: 50%;
+      transition: color 0.3s ease, background-color 0.2s ease, transform 0.2s ease;
+    }
+    .cat-chip:hover .cat-chip-arrow, .cat-chip.active .cat-chip-arrow { color: var(--ink-soft); }
+    .cat-chip-arrow:hover { background: rgba(43,38,32,0.06); }
+    .cat-chip-arrow.open { transform: rotate(180deg); color: var(--ink); }
+
+    /* ── Sub-kategoriya dropdown (chip strelkasi bosilganda) ── */
+    .cat-subdrop-overlay { position: fixed; inset: 0; z-index: 150; }
+    .cat-subdrop {
+      position: fixed; z-index: 151; min-width: 220px;
+      background: var(--bg-card); border-radius: 16px; box-shadow: var(--shadow-float);
+      border: 1px solid var(--line); padding: 8px; display: flex; flex-direction: column; gap: 2px;
+      animation: popIn .22s cubic-bezier(.34,1.4,.64,1) both;
+    }
+    .cat-subdrop-item {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 10px 12px; border-radius: 10px; border: none; background: transparent;
+      font-size: 14px; font-weight: 500; color: var(--ink); text-align: left; cursor: pointer;
+      font-family: inherit; transition: background .15s;
+      letter-spacing: -0.01em;
+    }
+    .cat-subdrop-item:hover { background: var(--sage-tint); color: var(--sage-deep); }
+    .cat-subdrop-thumb { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+
+    /* ── Banner karusel ── */
+    /* Mahsulotlar bloki bilan bir xil kenglikda (page-body bilan mos) */
+    .banner-wrap { max-width: 1400px; margin: 16px auto 32px; padding: 0 28px; }
+    .banner-viewport { position: relative; overflow: hidden; border-radius: 20px; box-shadow: var(--shadow-card); }
+    .banner-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
+    .banner-slide { position: relative; min-width: 100%; aspect-ratio: 2 / 1; background: var(--bg-soft); }
+    .banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .banner-title {
+      position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 32px;
+      background: linear-gradient(transparent, rgba(43,38,32,0.6)); color: #fff;
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .banner-dots { position: absolute; bottom: 18px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 2; }
+    .banner-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.55); cursor: pointer; transition: all .25s; border: none; padding: 0; }
+    .banner-dot.active { background: #fff; width: 24px; border-radius: 4px; }
+    .banner-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15); color: #fff;
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; z-index: 3;
+    }
+    .banner-arrow:hover { background: rgba(255,255,255,0.28); }
+    .banner-arrow.prev { left: 18px; }
+    .banner-arrow.next { right: 18px; }
+    @media (max-width: 640px) {
+      .banner-wrap { padding: 0 16px; margin: 12px auto 20px; }
+      .banner-viewport { border-radius: 14px; }
+      .banner-slide { aspect-ratio: 16 / 9; }
+      .banner-title { font-size: 16px; padding: 16px 18px; }
+      .banner-arrow { width: 36px; height: 36px; }
+      .banner-arrow.prev { left: 12px; }
+      .banner-arrow.next { right: 12px; }
+    }
+    @media (max-width: 480px) { .bottom-nav { width: 72%; } }
+
+    /* ── Product Detail Overlay ──────────────── */
+    .detail-overlay {
+      position: fixed; inset: 0; z-index: 8000;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      animation: fadeIn .25s ease;
+      overflow-y: auto;
+    }
+    .detail-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px; border-bottom: 1px solid var(--line-soft);
+      position: sticky; top: 0; background: rgba(250,247,242,0.95);
+      backdrop-filter: blur(12px); z-index: 2;
+    }
+    .detail-back {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 500; color: var(--ink-soft);
+      border: none; background: none; cursor: pointer; padding: 0;
+      transition: color .15s;
+      letter-spacing: -0.01em;
+    }
+    .detail-back:hover { color: var(--ink); }
+    .detail-close-btn {
+      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
+      background: var(--bg-card); display: flex; align-items: center; justify-content: center;
+      color: var(--ink-soft); cursor: pointer; font-size: 16px;
+      transition: all .2s;
+    }
+    .detail-close-btn:hover { background: var(--sage-tint); color: var(--sage-deep); border-color: var(--sage-tint); }
+    .detail-body {
+      display: flex; justify-content: center; align-items: center;
+      background: var(--bg); padding: 32px 28px 0; gap: 40px;
+    }
+    @media (max-width: 640px) {
+      .detail-body { flex-direction: column; gap: 20px; padding: 20px 18px 0; }
+    }
+    .detail-img-side {
+      display: flex; align-items: center; justify-content: center;
+      width: 38%; margin: 0; aspect-ratio: 1 / 1; border-radius: 20px;
+      overflow: hidden;
+    }
+    @media (max-width: 640px) {
+      .detail-img-side { width: 100%; border-radius: 16px; }
+    }
+    .detail-img-side img { width: 78%; height: 78%; object-fit: contain; border-radius: 16px; display: block; }
+    .detail-info-side { padding: 40px 36px; display: flex; flex-direction: column; gap: 0; width: 44%;}
+    @media (max-width: 640px) { .detail-info-side { padding: 24px 22px; width: 100%; } }
+    .detail-cat { font-size: 11px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .detail-name {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 30px; font-weight: 600; color: var(--ink); letter-spacing: -0.025em; line-height: 1.2; margin-bottom: 18px;
+    }
+    @media (max-width: 640px) { .detail-name { font-size: 24px; } }
+    .detail-price { font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 24px; letter-spacing: -0.02em; }
+    @media (max-width: 640px) { .detail-price { font-size: 23px; } }
+    .detail-unit-label { font-size: 11px; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .detail-unit-select {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+    }
+    .detail-unit-chip {
+      height: 38px; padding: 0 18px; border-radius: var(--radius-pill);
+      border: 1px solid var(--line); background: var(--bg-card);
+      font-size: 13px; font-weight: 500; color: var(--ink-soft); cursor: pointer;
+      transition: all .2s;
+      letter-spacing: -0.01em;
+    }
+    .detail-unit-chip.active { border-color: var(--sage); background: var(--sage-tint); color: var(--sage-deep); font-weight: 600; }
+
+    /* ── Telefon (IMEI) tovari ─────────────────────────────────────── */
+    .ph-from { font-size: 0.62em; font-weight: 500; opacity: .6; margin-left: 4px; }
+    .detail-unit-chip.ph-color { display: inline-flex; align-items: center; gap: 6px; }
+    .ph-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); flex-shrink: 0;
+    }
+    .ph-dot.lg { width: 16px; height: 16px; }
+    .ph-real-color {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin: 14px 0 4px; padding: 9px 12px; border-radius: 10px;
+      background: var(--sage-tint); font-size: 13px; color: var(--ink);
+    }
+    .ph-note { font-size: 11px; opacity: .55; }
+    .ph-unit-meta { font-size: 12.5px; color: #64748b; margin-top: 6px; }
+
+    .ph-units { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .ph-unit {
+      display: flex; align-items: center; gap: 12px;
+      border: 1px solid #e6e6e6; border-radius: 12px; padding: 11px 13px;
+      transition: border-color .15s;
+    }
+    .ph-unit:hover { border-color: var(--sage); }
+    .ph-unit-l { flex: 1; min-width: 0; }
+    .ph-unit-top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .ph-cond {
+      font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px;
+      background: #fef3c7; color: #92400e;
+    }
+    .ph-cond.new { background: #dcfce7; color: #166534; }
+    .ph-bat, .ph-cyc { font-size: 11.5px; color: #64748b; }
+    .ph-imei {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11.5px; color: #94a3b8; margin-top: 3px; letter-spacing: .3px;
+    }
+    .ph-note2 { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .ph-unit-r { text-align: right; flex-shrink: 0; }
+    .ph-price { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .ph-pick {
+      margin-top: 5px; border: 0; cursor: pointer;
+      background: var(--sage); color: #fff;
+      font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 8px;
+      transition: opacity .15s;
+    }
+    .ph-pick:hover { opacity: .88; }
+    /* Telefon "son bilan" (grouped) bucketlari */
+    .ph-buckets { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .ph-bucket {
+      display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+      border: 1.5px solid #e6e6e6; border-radius: 12px; padding: 11px 13px;
+      background: #fff; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .ph-bucket:hover { border-color: var(--sage); }
+    .ph-bucket.active { border-color: var(--sage); background: color-mix(in srgb, var(--sage) 8%, #fff); }
+    .ph-bucket-l { flex: 1; min-width: 0; }
+    .ph-bucket-spec { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ph-bspec {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12.5px; font-weight: 600; color: var(--ink);
+      background: #f1f5f9; padding: 2px 8px; border-radius: 6px;
+    }
+    .ph-bucket-cnt { font-size: 11.5px; color: #64748b; margin-top: 4px; }
+    .ph-bucket-price { font-size: 15px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
+    .cart-item-imei {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10.5px; color: #94a3b8; margin-top: 1px;
+    }
+    .detail-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+    .detail-add-btn {
+      flex: 1; height: 52px; border-radius: var(--radius-sm); border: none;
+      background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
+      box-shadow: 0 4px 14px rgba(43,38,32,0.2); cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: -0.01em;
+    }
+    .detail-add-btn:hover:not(.btn-added):not(:disabled) { background: var(--sage); box-shadow: 0 4px 14px rgba(212,7,7,0.35); }
+    .detail-add-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
+    .detail-add-btn.btn-added { background: var(--sage); color: #fff; box-shadow: 0 4px 14px rgba(212,7,7,0.4); pointer-events: none; }
+    .detail-added-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--sage-tint); border: 1px solid rgba(212,7,7,0.25); border-radius: var(--radius-sm);
+      padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--sage-deep);
+      margin-bottom: 22px;
+    }
+    .detail-stock { font-size: 13px; color: var(--ink-faint); margin-bottom: 12px; font-weight: 500; }
+    .detail-stock.ok { color: var(--sage-deep); }
+    .detail-stock.out { color: var(--clay); }
+    .detail-desc {
+      font-size: 14px; color: var(--ink-soft); line-height: 1.7;
+      padding-top: 22px; border-top: 1px solid var(--line-soft); margin-top: 8px; text-align: justify;
+      font-weight: 400;
+    }
+    .variant-chip {
+      display: flex; flex-direction: column; align-items: flex-start;
+      height: auto !important; padding: 8px 14px !important;
+      min-width: 84px; text-align: left;
+    }
+    .variant-chip.unavailable { border-color: var(--line-soft) !important; opacity: .5; cursor: not-allowed; }
+    .vc-name { font-size: 13px; font-weight: 600; }
+    .vc-price { font-size: 11px; color: var(--sage-deep); margin-top: 2px; }
+    .vc-orig  { font-size: 10px; color: var(--ink-faint); text-decoration: line-through; }
+    .vc-stock { font-size: 10px; color: var(--ink-faint); }
+    .vc-out   { font-size: 10px; color: var(--clay); margin-top: 2px; }
+    .disc-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      background: var(--clay); color: #fff; border-radius: 4px; padding: 2px 6px;
+      margin-left: 6px; vertical-align: middle; line-height: 1.4;
+      letter-spacing: .02em;
+    }
+    .price-orig-strike {
+      font-size: 12px; color: var(--ink-faint); text-decoration: line-through; margin-right: 6px; font-weight: 400;
+    }
+    .variant-select-btn {
+      flex: 1; height: 52px; border-radius: var(--radius-sm); border: none;
+      background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
+      box-shadow: 0 4px 14px rgba(43,38,32,0.2); cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: -0.01em;
+    }
+    .variant-select-btn:hover { background: var(--sage); }
+    .detail-qty-wrap {
+      display: flex; align-items: center;
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+      height: 52px; flex-shrink: 0;
+      background: var(--bg-card);
+    }
+    .detail-qty-btn {
+      width: 46px; height: 100%; border: none; background: transparent;
+      font-size: 20px; color: var(--ink-soft); cursor: pointer; transition: background .15s;
+    }
+    .detail-qty-btn:hover { background: var(--sage-tint); color: var(--sage-deep); }
+    .detail-qty-num {
+      width: 42px; text-align: center; font-size: 16px; font-weight: 600;
+      border-left: 1px solid var(--line-soft); border-right: 1px solid var(--line-soft);
+      color: var(--ink);
+    }
+    /* Og'irlik (kg) tovar — kasr miqdor kiritish */
+    .detail-qty-wrap.weight { padding: 0 6px 0 12px; gap: 4px; }
+    .detail-qty-input {
+      width: 80px; height: 100%; border: none; background: transparent;
+      font-size: 17px; font-weight: 600; text-align: center; color: var(--ink); outline: none;
+      -moz-appearance: textfield;
+      letter-spacing: -0.01em;
+    }
+    .detail-qty-input::-webkit-outer-spin-button,
+    .detail-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .detail-qty-unit { font-size: 13px; font-weight: 600; color: var(--sage-deep); white-space: nowrap; padding-right: 6px; }
+
+    /* ── Cart Redesign ───────────────────────── */
+    .cart-sheet-new {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: var(--bg); border-radius: 28px 28px 0 0;
+      max-height: 88vh; display: flex; flex-direction: column;
+      overflow: hidden; max-width: 560px; margin: 0 auto;
+      box-shadow: 0 -8px 40px rgba(43,38,32,0.15);
+    }
+    .cart-handle { width: 40px; height: 4px; background: var(--line); border-radius: 2px; margin: 14px auto 0; }
+    .cart-head-new {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 22px 18px;
+    }
+    .cart-title-new {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 22px; font-weight: 600; color: var(--ink); letter-spacing: -0.02em;
+    }
+    .cart-count-chip {
+      background: var(--sage-tint); border-radius: var(--radius-pill); padding: 4px 12px;
+      font-size: 12px; font-weight: 600; color: var(--sage-deep); margin-left: 10px;
+    }
+    .cart-items-list { flex: 1; overflow-y: auto; padding: 4px 0 8px; }
+    .cart-item-new {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 22px; transition: background .15s;
+    }
+    .cart-item-new:active { background: var(--bg-muted); }
+    .cart-thumb-new {
+      width: 62px; height: 62px; border-radius: 14px;
+      background: var(--bg-muted); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .cart-thumb-new img { width: 100%; height: 100%; object-fit: contain; }
+    .cart-info-new { flex: 1; min-width: 0; }
+    .cart-name-new { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; letter-spacing: -0.01em; }
+    .cart-price-new { font-size: 13px; font-weight: 600; color: var(--sage-deep); letter-spacing: -0.01em; }
+    .cart-unit-new { font-size: 11px; color: var(--ink-faint); font-weight: 400; }
+    .cart-qty-ctrl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .cqb {
+      width: 32px; height: 32px; border-radius: 10px;
+      border: 1px solid var(--line); background: var(--bg-card);
+      font-size: 16px; color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .15s; font-weight: 400;
+    }
+    .cqb:hover { background: var(--sage-tint); border-color: var(--sage-tint); color: var(--sage-deep); }
+    .cqb.cqb-del { border-color: var(--clay-tint); color: var(--clay); }
+    .cqb.cqb-del:hover { background: var(--clay-tint); }
+    /* Savatda kg tovar — kasr miqdor input */
+    .cart-qty-input {
+      width: 60px; height: 32px; border: 1px solid var(--line); border-radius: 10px;
+      text-align: center; font-size: 13px; font-weight: 600; color: var(--ink); outline: none;
+      -moz-appearance: textfield;
+      background: var(--bg-card);
+    }
+    .cart-qty-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-tint); }
+    .cart-qty-input::-webkit-outer-spin-button,
+    .cart-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .cqu { font-size: 11px; font-weight: 600; color: var(--sage-deep); }
+    .cqn { width: 28px; text-align: center; font-size: 14px; font-weight: 600; color: var(--ink); }
+    .cart-divider { height: 1px; background: var(--line-soft); margin: 0 22px; }
+    .cart-footer-new { padding: 18px 22px 32px; background: var(--bg); border-top: 1px solid var(--line-soft); }
+    .cart-total-card {
+      background: var(--sage-tint);
+      border: 1px solid rgba(212,7,7,0.2); border-radius: 16px;
+      padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 14px;
+    }
+    .cart-total-lbl { font-size: 13px; color: var(--sage-deep); font-weight: 600; letter-spacing: -0.01em; }
+    .cart-total-val {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      font-size: 24px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em;
+    }
+    .cart-checkout-btn {
+      width: 100%; height: 54px; border-radius: var(--radius-sm); border: none;
+      background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
+      box-shadow: 0 4px 16px rgba(43,38,32,0.2); cursor: pointer;
+      transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+      letter-spacing: -0.01em;
+    }
+    .cart-checkout-btn:hover { background: var(--sage); box-shadow: 0 4px 16px rgba(212,7,7,0.35); }
+    .cart-checkout-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
+    .cart-empty-new { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 20px; gap: 12px; }
+    .cart-empty-icon { font-size: 52px; opacity: 0.5; }
+    .cart-empty-text { font-family: 'Montserrat', -apple-system, sans-serif; font-size: 18px; font-weight: 600; color: var(--ink-soft); }
+    .cart-empty-sub { font-size: 13px; color: var(--ink-faint); }
+
+  
+    /* ── Add button override (was Tilda yellow #FBBC05, now warm charcoal) ── */
+    .add-btn {
+      background: #161616 !important; color: #fff !important;
+      border: none !important;
+      box-shadow: 0 2px 8px rgba(43,38,32,0.15) !important;
+      font-weight: 600 !important;
+    }
+    .add-btn:hover:not(:disabled) { background: #d40707 !important; box-shadow: 0 4px 14px rgba(212,7,7,0.35) !important; }
+    .add-btn:disabled { background: #e7e5e5 !important; color: #9a9a9a !important; box-shadow: none !important; }
+    .add-btn.btn-added { background: #d40707 !important; color: #fff !important; box-shadow: 0 2px 10px rgba(212,7,7,0.4) !important; }
+
+    /* extra bottom padding for nav */
+    .page-body { padding-bottom: 110px !important; }
+
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import React, { useState, useEffect, useMemo, useRef } from 'https://esm.sh/react@18.2.0'
+import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client'
+import htm from 'https://esm.sh/htm@3.1.1'
+const html = htm.bind(React.createElement)
+
+const { API_URL, STOREFRONT_KEY } = window.STORE_CONFIG
+const HDR = { 'Content-Type': 'application/json', 'X-Storefront-Key': STOREFRONT_KEY }
+const ACCENT = '#d40707', AD = '#a80505'
+
+// Tashkilotning BAZAVIY valyutasi (info yuklanganda o'rnatiladi). USD org'da
+// bazaviy narxlar (currency='') dollarda ko'rsatiladi, so'mda EMAS.
+let BASE_CUR = 'UZS'
+const somRaw = n => { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
+// Narxni O'Z valyutasida: USD → "$50", aks holda so'm. Bo'sh valyuta = bazaviy.
+const money = (n, cur) => {
+  const c = cur || BASE_CUR
+  if (c === 'UZS' || c === '') return somRaw(n)
+  const v = Math.round((+n||0)*100)/100
+  let i, d
+  if (Number.isInteger(v)) { i = v.toString(); d = '' } else { [i, d] = v.toFixed(2).split('.') }
+  i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  return (c === 'USD' ? '$' : c + ' ') + i + (d ? '.' + d : '')
+}
+const som = n => money(n, BASE_CUR)
+// Savat jami — valyuta bo'yicha guruhlab ("$52  +  300 000 so'm")
+const groupTotal = (items) => {
+  const t = {}
+  ;(items || []).forEach(it => { const c = it.currency || ''; t[c] = (t[c] || 0) + (it.cur_price ?? it.price) * it.qty })
+  const e = Object.entries(t)
+  return e.length ? e.map(([c, v]) => money(v, c)).join('  +  ') : som(0)
+}
+// Koordinatani manzil matniga (OpenStreetMap Nominatim — bepul, kalitsiz).
+const reverseGeocode = async (lat, lng) => {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=uz,ru`, { headers:{ 'Accept':'application/json' } })
+    if (!r.ok) return null
+    const d = await r.json()
+    return d.display_name || null
+  } catch { return null }
+}
+// Og'irlik/o'lchov birlikmi (kg, gramm) — kasr miqdor bilan sotiladi
+const isWeightUnit = name => /kilogram|kilogramm|gramm|\bkg\b|\bg\b/i.test((name||'').trim())
+// Miqdorni ko'rsatish: butun bo'lsa "2", kasr bo'lsa "0.5"
+const fmtQty = n => Number.isInteger(+n) ? String(+n) : String(+(+n).toFixed(3))
+const PM_LABELS = { cash:'Naqd', card:'Karta', transfer:"O'tkazma", credit:'Nasiya', mixed:'Aralash', click:'Click', payme:'Payme', uzum:'Uzum', humo:'Humo', uzcard:'UzCard', installment:"Bo'lib to'lash", exchange_credit:'Ayirboshlash' }
+const pmLabel = m => PM_LABELS[m] || (m || '—')
+const media = u => !u ? '' : u.startsWith('http') ? u : API_URL.replace(/\/api\/?$/,'') + u
+// Hozircha do'konda banner yuklanmagan bo'lsa ko'rsatiladigan namuna rasmlar
+const DEMO_BANNERS = [
+  'banners_img/4d82f95b9703cc6d055e0d64e25ee322.jpg',
+  'banners_img/IMG_20260824_170904_808(1).jpg',
+  'banners_img/imgi_6_Gemini_Generated_Image_bb84u4bb84u4bb84_1.jpg',
+].map(encodeURI)
+const api   = async (p,o={}) => { const r=await fetch(API_URL+p,{...o,headers:HDR}); if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error||'Xatolik'); return r.json() }
+
+// ── SVG Icons ──────────────────────────────────────────────────────────
+const Ic = ({size=20,sw=1.8,children}) => html`<svg width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth=${sw} strokeLinecap="round" strokeLinejoin="round">${children}</svg>`
+const ISearch = ({s=20}) => html`<${Ic} size=${s}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></${Ic}>`
+const ICart   = ({s=20}) => html`<${Ic} size=${s}><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></${Ic}>`
+const IUser   = ({s=20}) => html`<${Ic} size=${s}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></${Ic}>`
+const IX      = ({s=16}) => html`<${Ic} size=${s} sw=${2.2}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></${Ic}>`
+const IChevronDown = ({s=12}) => html`<${Ic} size=${s} sw=${2.6}><path d="M6 9l6 6 6-6"/></${Ic}>`
+const ICaret  = ({s=12}) => html`<${Ic} size=${s} sw=${2.5}><polyline points="6 9 12 15 18 9"/></${Ic}>`
+const IBox    = ({s=40}) => html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="#d0d0d0" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`
+
+// ── Magic orb animation ────────────────────────────────────────────────
+function magicOrb(fromEl, toEl) {
+  if (!fromEl || !toEl) return
+  const fr = fromEl.getBoundingClientRect()
+  const tr = toEl.getBoundingClientRect()
+  const orb = document.createElement('div')
+  orb.className = 'magic-orb'
+  orb.style.top  = (fr.top  + fr.height  / 2 - 9) + 'px'
+  orb.style.left = (fr.left + fr.width / 2 - 9) + 'px'
+  document.body.appendChild(orb)
+  void orb.offsetWidth
+  orb.style.top     = (tr.top  + tr.height  / 2 - 9) + 'px'
+  orb.style.left    = (tr.left + tr.width / 2 - 9) + 'px'
+  orb.style.transform = 'scale(0.3)'
+  orb.style.opacity   = '0.5'
+  setTimeout(() => { orb.remove() }, 650)
+}
+
+// ── ProductDetail ─────────────────────────────────────────────────────
+function ProductDetail({ product, onClose, onAdd, onAddVariant, onAddSerial, onAddBucket, cart }) {
+  const p = product
+  const hasVariants = !!(p.has_variants && p.variants?.length)
+  // ── Telefon (IMEI) tovari ──────────────────────────────────────────
+  // Karta = MODEL. Ichidagi nusxalar rang+xotira+region bo'yicha
+  // guruhlangan holda keladi (backend). Guruh "uniform" bo'lsa nusxalar
+  // farqsiz — mijoz shunchaki savatga qo'shadi; farq qilsa (b/u) har
+  // nusxa alohida ko'rinadi: batareya, sikl, narx.
+  const phone = p.phone && (p.phone.groups?.length || p.phone.buckets?.length) ? p.phone : null
+  // "son bilan" (grouped) — spec+narx bucket, mijoz son tanlaydi;
+  // "dona-dona" (individual) — har IMEI alohida (guruh + units)
+  const isGrouped = !!(phone && phone.mode === 'grouped')
+  const phGroups = phone && !isGrouped ? phone.groups : []
+  const phBuckets = phone && isGrouped ? (phone.buckets || []) : []
+  const [phKey, setPhKey] = useState(phGroups[0]?.key ?? null)
+  const [phBKey, setPhBKey] = useState(phBuckets[0]?.key ?? null)
+  const phSel = phone && !isGrouped ? (phGroups.find(g => g.key === phKey) || phGroups[0]) : null
+  const phBSel = phBuckets.find(b => b.key === phBKey) || phBuckets[0] || null
+  const phStorages = [...new Set(phGroups.map(g => g.storage).filter(Boolean))]
+  const phColors = phGroups.filter(g => !phSel?.storage || g.storage === phSel.storage)
+  const phRegions = phColors.filter(g => !phSel?.color || g.color === phSel.color)
+  const pickPhone = (patch) => {
+    const want = { storage: phSel?.storage, color: phSel?.color, region: phSel?.region, ...patch }
+    const g = phGroups.find(x => x.storage === want.storage && x.color === want.color && x.region === want.region)
+      || phGroups.find(x => x.storage === want.storage && x.color === want.color)
+      || phGroups.find(x => x.storage === want.storage)
+    if (g) setPhKey(g.key)
+  }
+
+  const _firstInStock = hasVariants
+    ? (p.variants.find(v => v.in_stock) || p.variants[0])
+    : null
+  const [variantId, setVariantId] = useState(_firstInStock?.id ?? null)
+
+  const _firstAvail = !hasVariants && p.stock_type === 'tracked'
+    ? (p.units?.find(u => Math.floor(p.stock / (u.multiplier||1)) > 0) || p.units?.[0])
+    : p.units?.[0]
+  const [unitId, setUnitId] = useState(_firstAvail?.unit_id ?? null)
+  const [qty,    setQty]    = useState(1)
+  const [added,  setAdded]  = useState(false)
+  const addRef = useRef(null)
+
+  const selVariant = hasVariants ? (p.variants.find(v => v.id === variantId) || p.variants[0]) : null
+  const unit = !hasVariants ? (p.units?.find(u => u.unit_id === unitId) || p.units?.[0]) : null
+
+  const displayPrice    = hasVariants ? (selVariant?.price ?? 0) : (unit?.price ?? 0)
+  const displayOrigPrice = hasVariants ? (selVariant?.original_price ?? null) : (unit?.original_price ?? null)
+  // Valyuta: USD tovar $ da, aks holda so'm
+  const dispCur = hasVariants ? (selVariant?.currency ?? '') : (unit?.currency ?? '')
+  const dispVal = hasVariants ? (selVariant?.cur_price ?? displayPrice) : (unit?.cur_price ?? displayPrice)
+  const dispOrigVal = hasVariants ? (selVariant?.cur_original_price ?? null) : (unit?.cur_original_price ?? null)
+  const mult   = unit?.multiplier || 1
+  const isWeight = !hasVariants && isWeightUnit(unit?.unit_name)  // kg tovar — kasr miqdor
+  const maxQty = hasVariants
+    ? (selVariant?.in_stock ? (selVariant.stock != null ? Math.floor(selVariant.stock) : Infinity) : 0)
+    : (p.stock_type === 'tracked' ? (isWeight ? p.stock / mult : Math.floor(p.stock / mult)) : Infinity)
+  const cartKey = hasVariants ? `${p.id}_v${variantId}` : `${p.id}_${unit?.unit_id??'base'}`
+  const inCart = cart.find(x => x.key === cartKey)?.qty || 0
+  const out    = maxQty <= 0
+
+  const handleAdd = () => {
+    if (out || added) return
+    const q = isWeight ? Math.max(0.001, +qty || 0) : Math.max(1, Math.round(+qty || 1))
+    if (!q) return
+    if (hasVariants) {
+      onAddVariant(p, selVariant, q, addRef.current)
+    } else {
+      onAdd(p, unit, addRef.current, q)   // addToCart endi qty qabul qiladi (kasr ham)
+    }
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1400)
+  }
+
+  useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = '' } }, [])
+
+  return html`
+    <div className="detail-overlay">
+      <div className="detail-topbar">
+        <button className="detail-back" onClick=${onClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+          Boshqa mahsulotlar
+        </button>
+        <button className="detail-close-btn" onClick=${onClose}>✕</button>
+      </div>
+
+      <div className="detail-body">
+        <!-- Image -->
+        <div className="detail-img-side">
+          ${p.image
+            ? html`<img src=${media(p.image)} alt=${p.name}/>`
+            : html`<${IBox} s=${100}/>`}
+        </div>
+
+        <!-- Info -->
+        <div className="detail-info-side">
+          ${p.category_name && html`<div className="detail-cat">${p.category_name}</div>`}
+          <h1 className="detail-name">${p.name}</h1>
+          <div className="detail-price">
+            ${phone
+              ? html`${money(phSel?.from_cur_price ?? phSel?.from_price ?? 0, phSel?.currency ?? '')}
+                     ${(phSel?.count > 1 || phGroups.length > 1) && html`<span className="ph-from">dan</span>`}`
+              : html`${dispOrigVal && html`<span className="price-orig-strike">${money(dispOrigVal, dispCur)}</span>`}
+                     ${money(dispVal, dispCur)}`}
+            ${p.discount_percent > 0 && html`<span className="disc-badge">−${Math.round(p.discount_percent)}%</span>`}
+          </div>
+
+          <!-- Variant picker -->
+          ${hasVariants && html`
+            <div className="detail-unit-label">Variant tanlang</div>
+            <div className="detail-unit-select">
+              ${p.variants.map(v => html`
+                <button key=${v.id}
+                  className=${'detail-unit-chip variant-chip'+(variantId===v.id?' active':'')+(v.in_stock?'':' unavailable')}
+                  onClick=${()=>{ if(v.in_stock){setVariantId(v.id);setQty(1)} }}>
+                  <span className="vc-name">${v.name}</span>
+                  ${(v.cur_original_price ?? v.original_price) != null && html`<span className="vc-orig">${money(v.cur_original_price ?? v.original_price, v.currency)}</span>`}
+                  <span className="vc-price">${money(v.cur_price ?? v.price, v.currency)}</span>
+                  ${v.stock!=null ? html`<span className="vc-stock">${Math.floor(v.stock)} ta</span>` : null}
+                  ${!v.in_stock ? html`<span className="vc-out">Tugadi</span>` : null}
+                </button>`)}
+            </div>`}
+
+          <!-- Unit chips (non-variant) -->
+          ${!hasVariants && p.units?.length > 1 && html`
+            <div className="detail-unit-label">Birlik tanlang</div>
+            <div className="detail-unit-select">
+              ${p.units.map(u => html`
+                <button key=${u.unit_id}
+                  className=${'detail-unit-chip'+(unitId===u.unit_id?' active':'')}
+                  onClick=${()=>{setUnitId(u.unit_id);setQty(1)}}>
+                  ${u.unit_name}
+                </button>`)}
+            </div>`}
+
+          <!-- ── Telefon (dona-dona): konfiguratsiya + nusxa tanlash ─── -->
+          ${phone && !isGrouped && html`
+            ${phStorages.length > 1 && html`
+              <div className="detail-unit-label">Xotira</div>
+              <div className="detail-unit-select">
+                ${phStorages.map(st => html`
+                  <button key=${st} className=${'detail-unit-chip'+(phSel?.storage===st?' active':'')}
+                    onClick=${()=>pickPhone({storage:st})}>${st}</button>`)}
+              </div>`}
+
+            ${phColors.length > 1 && html`
+              <div className="detail-unit-label">Rang</div>
+              <div className="detail-unit-select">
+                ${phColors.map(g => html`
+                  <button key=${g.key} className=${'detail-unit-chip ph-color'+(phSel?.color===g.color?' active':'')}
+                    onClick=${()=>pickPhone({storage:g.storage, color:g.color})}>
+                    ${g.color_hex && html`<i className="ph-dot" style=${{background:g.color_hex}}></i>`}
+                    ${g.color_label || 'Rang'}
+                  </button>`)}
+              </div>`}
+
+            ${phRegions.length > 1 && html`
+              <div className="detail-unit-label">Region</div>
+              <div className="detail-unit-select">
+                ${phRegions.map(g => html`
+                  <button key=${g.key} className=${'detail-unit-chip'+(phSel?.region===g.region?' active':'')}
+                    onClick=${()=>pickPhone({storage:g.storage, color:g.color, region:g.region})}>
+                    ${g.region || '—'}
+                  </button>`)}
+              </div>`}
+
+            <!-- Rasm umumiy bo'lgani uchun HAQIQIY rangni alohida ko'rsatamiz -->
+            ${phSel?.color_label && html`
+              <div className="ph-real-color">
+                ${phSel.color_hex && html`<i className="ph-dot lg" style=${{background:phSel.color_hex}}></i>`}
+                Haqiqiy rangi: <b>${phSel.color_label}</b>
+                <span className="ph-note">rasm namunaviy</span>
+              </div>`}
+
+            ${phSel && phSel.uniform
+              ? html`
+                <div className="detail-stock ok">✓ Mavjud: ${phSel.count} ta</div>
+                <div className="ph-unit-meta">
+                  ${phSel.units[0].condition_label}
+                  ${phSel.units[0].battery_health != null && html` · 🔋 ${phSel.units[0].battery_health}%`}
+                  ${phSel.units[0].battery_cycles != null && html` · ${phSel.units[0].battery_cycles} sikl`}
+                </div>
+                <div className="detail-controls">
+                  <button className="detail-add-btn" onClick=${e=>onAddSerial(p, phSel.units[0], e.currentTarget)}>
+                    Savatga qo'shish
+                  </button>
+                </div>`
+              : phSel && html`
+                <div className="detail-unit-label">Mavjud nusxalar (${phSel.count} ta)</div>
+                <div className="ph-units">
+                  ${phSel.units.map(u => html`
+                    <div key=${u.id} className="ph-unit">
+                      <div className="ph-unit-l">
+                        <div className="ph-unit-top">
+                          <span className=${'ph-cond'+(u.condition==='new'?' new':'')}>${u.condition_label}</span>
+                          ${u.battery_health != null && html`<span className="ph-bat">🔋 ${u.battery_health}%</span>`}
+                          ${u.battery_cycles != null && html`<span className="ph-cyc">${u.battery_cycles} sikl</span>`}
+                        </div>
+                        <div className="ph-imei">${u.imei_masked}</div>
+                        ${u.note && html`<div className="ph-note2">${u.note}</div>`}
+                      </div>
+                      <div className="ph-unit-r">
+                        <div className="ph-price">${money(u.cur_price ?? u.price, u.currency)}</div>
+                        <button className="ph-pick" onClick=${e=>onAddSerial(p, u, e.currentTarget)}>Tanlash</button>
+                      </div>
+                    </div>`)}
+                </div>`}
+          `}
+
+          <!-- ── Telefon (son bilan): spec+narx bucket, son tanlash ──── -->
+          ${phone && isGrouped && html`
+            <div className="detail-unit-label">Variant / narx</div>
+            <div className="ph-buckets">
+              ${phBuckets.map(b => html`
+                <button key=${b.key} className=${'ph-bucket'+(phBSel?.key===b.key?' active':'')}
+                  onClick=${()=>{setPhBKey(b.key); setQty(1)}}>
+                  <div className="ph-bucket-l">
+                    <div className="ph-bucket-spec">
+                      ${b.storage && html`<span className="ph-bspec">${b.storage}</span>`}
+                      ${b.color_label && html`<span className="ph-bspec">
+                        ${b.color_hex && html`<i className="ph-dot" style=${{background:b.color_hex}}></i>`}${b.color_label}
+                      </span>`}
+                      ${b.region && html`<span className="ph-bspec">${b.region}</span>`}
+                    </div>
+                    <div className="ph-bucket-cnt">${b.count} dona mavjud</div>
+                  </div>
+                  <div className="ph-bucket-price">${money(b.cur_price ?? b.price, b.currency)}</div>
+                </button>`)}
+            </div>
+            ${phBSel && html`
+              <div className="detail-controls">
+                <div className="detail-qty-wrap">
+                  <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.max(1,q-1))}>−</button>
+                  <span className="detail-qty-num">${qty}</span>
+                  <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.min(q+1, phBSel.count||1))}>+</button>
+                </div>
+                <button className="detail-add-btn" onClick=${e=>onAddBucket(p, phBSel, qty, e.currentTarget)}>
+                  Savatga qo'shish
+                </button>
+              </div>`}
+          `}
+
+          <!-- Stock -->
+          ${hasVariants && !out && selVariant?.stock != null && html`
+            <div className="detail-stock ok">✓ Stokda: ${Math.floor(selVariant.stock)} ta</div>`}
+          ${hasVariants && out && html`
+            <div className="detail-stock out">❌ Stokda yo'q</div>`}
+          ${!hasVariants && !phone && p.stock_type === 'tracked' && html`
+            <div className=${'detail-stock'+(out?' out':' ok')}>
+              ${out ? '❌ Stokda yo\'q' : '✓ Stokda: '+fmtQty(maxQty)+' '+(unit?.unit_name||'dona')}
+            </div>`}
+
+          <!-- In cart badge -->
+          ${inCart > 0 && html`
+            <div className="detail-added-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Savatda: ${fmtQty(inCart)} ${isWeight ? (unit?.unit_name||'kg') : 'ta'}
+            </div>`}
+
+          <!-- Qty + Add -->
+          ${!phone && html`
+          <div className="detail-controls">
+            ${isWeight
+              ? html`<div className="detail-qty-wrap weight">
+                  <input type="number" step="0.001" min="0" className="detail-qty-input"
+                    defaultValue="1" placeholder="0.5"
+                    onInput=${e=>setQty(+e.target.value||0)}/>
+                  <span className="detail-qty-unit">${unit?.unit_name||'kg'}</span>
+                </div>`
+              : html`<div className="detail-qty-wrap">
+                  <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.max(1,q-1))}>−</button>
+                  <span className="detail-qty-num">${qty}</span>
+                  <button className="detail-qty-btn" onClick=${()=>setQty(q=>maxQty===Infinity?q+1:Math.min(q+1,maxQty-inCart))}>+</button>
+                </div>`}
+            <button ref=${addRef} className=${'detail-add-btn'+(added?' btn-added':'')} onClick=${handleAdd} disabled=${out}>
+              ${added
+                ? html`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Qo'shildi!`
+                : html`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C5.18 13.55 5 13.76 5 14c0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> ${out ? 'Stokda yo\'q' : 'Savatga qo\'shish'}`}
+            </button>
+          </div>`}
+
+          <!-- Description -->
+          ${p.description && html`<p className="detail-desc">${p.description}</p>`}
+        </div>
+      </div>
+    </div>`
+}
+
+// ── CategoryDrawer ────────────────────────────────────────────────────
+function CategoryDrawer({ open, onClose, cats, selTop, selSub, onSelect, catImgs }) {
+  const [q, setQ] = useState('')
+  const [exp, setExp] = useState({})
+  const ql = q.trim().toLowerCase()
+  const childrenOf = id => cats.filter(c => c.parentId === id)
+  const pick = (top, sub) => { onSelect(top, sub); onClose() }
+
+  let tops = cats.filter(c => !c.parentId)
+  if (ql) tops = tops.filter(t => t.name.toLowerCase().includes(ql) || childrenOf(t.id).some(s => s.name.toLowerCase().includes(ql)))
+
+  return html`<${React.Fragment}>
+    <div className=${'drawer-overlay'+(open?' open':'')} onClick=${onClose}></div>
+    <div className=${'cat-drawer'+(open?' open':'')}>
+      <div className="cat-drawer-head">
+        <h2>Katalog</h2>
+        <div className="cat-drawer-search">
+          <input value=${q} onInput=${e=>setQ(e.target.value)} placeholder="Bo'limlarni qidirish..."/>
+        </div>
+      </div>
+      <div className="cat-drawer-list">
+        ${tops.map(t => {
+          const subs = childrenOf(t.id)
+          const parentActive = selTop===t.id && selSub==null
+          if (subs.length === 0) return html`
+            <div key=${t.id} className="drawer-cat-item">
+              <button className=${'drawer-cat-btn'+(parentActive?' dc-active':'')} onClick=${()=>pick(t.id,null)}>
+                ${catImgs[t.id] && html`<img className="dc-thumb" src=${media(catImgs[t.id])} alt=""/>`}
+                <span className="dc-label">${t.name}</span>
+                <span className="dc-dot"></span>
+              </button>
+            </div>`
+          const isOpen = exp[t.id] || (ql && subs.some(s=>s.name.toLowerCase().includes(ql)))
+          const vSubs = subs.filter(s => !ql || s.name.toLowerCase().includes(ql))
+          return html`
+            <div key=${t.id} className="drawer-cat-item">
+              <button className=${'drawer-cat-btn'+(parentActive?' dc-active':'')}
+                onClick=${()=>setExp(e=>({...e,[t.id]:!isOpen}))}>
+                ${catImgs[t.id] && html`<img className="dc-thumb" src=${media(catImgs[t.id])} alt=""/>`}
+                <span className="dc-label">${t.name}</span>
+                <span className=${'dc-chevron'+(isOpen?' open':'')}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </span>
+              </button>
+              ${isOpen && html`<${React.Fragment}>
+                <button className=${'dc-sub'+(parentActive?' dc-active':'')} onClick=${()=>pick(t.id,null)}>
+                  <span className="dc-bar"></span><span className="dc-label">Hammasi</span>
+                </button>
+                ${vSubs.map(s => html`
+                  <button key=${s.id} className=${'dc-sub'+(selSub===s.id?' dc-active':'')} onClick=${()=>pick(t.id,s.id)}>
+                    <span className="dc-bar"></span>
+                    ${catImgs[s.id] && html`<img className="dc-thumb" src=${media(catImgs[s.id])} alt=""/>`}
+                    <span className="dc-label">${s.name}</span>
+                  </button>`)}
+              </${React.Fragment}>`}
+            </div>`
+        })}
+      </div>
+    </div>
+  </${React.Fragment}>`
+}
+
+// ── BottomNav ──────────────────────────────────────────────────────────
+function BottomNav({ active, count, cartIconRef, onHome, onSearch, onCart, onDrawer }) {
+  const items = [
+    { id:'home',   label:'Asosiy',  onClick: onHome,
+      icon: html`<path d="M12 5.69l5 4.5V18h-2v-6H9v6H7v-7.81l5-4.5zM12 3L2 12h3v8h14v-8h3L12 3z"/>` },
+    { id:'search', label:'Qidiruv', onClick: onSearch,
+      icon: html`<path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>` },
+    { id:'cart',   label:'Savat',   onClick: onCart,   ref: cartIconRef,
+      icon: html`<path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C5.18 13.55 5 13.76 5 14c0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>` },
+    { id:'catalog',label:'Katalog', onClick: onDrawer,
+      icon: html`<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>` },
+  ]
+  return html`
+    <nav className="bottom-nav">
+      ${items.map(it => html`
+        <button key=${it.id} ref=${it.ref||null}
+          className=${'nav-btn'+(active===it.id?' nav-active':'')}
+          onClick=${it.onClick}>
+          <div className="nav-icon-wrap">
+            <svg viewBox="0 0 24 24" style=${{width:21,height:21,fill:'currentColor'}}>
+              ${it.icon}
+            </svg>
+            ${it.id==='cart' && html`
+              <span className=${'nav-cart-badge'+(count>0?' show':'')}>${count>9?'9+':count}</span>`}
+          </div>
+          <span className="nav-label">${it.label}</span>
+        </button>`)}
+    </nav>`
+}
+
+// ── ProductItem ────────────────────────────────────────────────────────
+function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
+  const hasVariants = !!(p.has_variants && p.variants?.length)
+
+  const _firstAvail = !hasVariants && p.stock_type === 'tracked'
+    ? (p.units?.find(u => Math.floor(p.stock / (u.multiplier||1)) > 0) || p.units?.[0])
+    : p.units?.[0]
+  const [unitId, setUnitId] = useState(_firstAvail?.unit_id ?? null)
+  const [added, setAdded]   = useState(false)
+  const addBtnRef = useRef(null)
+
+  const unit   = !hasVariants ? (p.units?.find(u => u.unit_id === unitId) || p.units?.[0]) : null
+  const mult   = unit?.multiplier || 1
+  const maxQty = hasVariants
+    ? (p.in_stock ? 1 : 0)
+    : (p.stock_type === 'tracked' ? Math.floor(p.stock / mult) : Infinity)
+  const cartKey = p.id+'_'+(unit?.unit_id??'base')
+  const inCart = !hasVariants ? (cart.find(x => x.key === cartKey)?.qty || 0) : 0
+  const out    = hasVariants ? !p.in_stock : maxQty <= 0
+
+  const displayPrice = hasVariants
+    ? (p.variants[0]?.price ?? 0)
+    : (unit?.price ?? 0)
+  const displayOrigPrice = hasVariants
+    ? (p.variants[0]?.original_price ?? null)
+    : (unit?.original_price ?? null)
+  // Valyuta: USD tovar $ da, aks holda so'm
+  const dispCur = hasVariants ? (p.variants[0]?.currency ?? '') : (unit?.currency ?? '')
+  const dispVal = hasVariants ? (p.variants[0]?.cur_price ?? displayPrice) : (unit?.cur_price ?? displayPrice)
+  const dispOrigVal = hasVariants ? (p.variants[0]?.cur_original_price ?? null) : (unit?.cur_original_price ?? null)
+
+  // Telefon: karta = MODEL, narx eng arzon nusxadan. Savatga to'g'ridan-
+  // to'g'ri qo'shilmaydi — mijoz avval konfiguratsiya/nusxani tanlaydi.
+  const phone = p.phone && (p.phone.groups?.length || p.phone.buckets?.length) ? p.phone : null
+
+  const handleAdd = (e) => {
+    e.stopPropagation()
+    if (phone) { onDetail(p); return }
+    if (out || added || hasVariants) return
+    onAdd(p, unit, addBtnRef.current)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1200)
+  }
+
+  return html`
+    <div className="product-item fade-up" onClick=${()=>onDetail(p)}>
+      <!-- Image -->
+      <div className="product-img-wrap">
+        ${showImages && p.image
+          ? html`<img src=${media(p.image)} alt=${p.name} loading="lazy" onError=${e=>{e.target.style.display='none'}}/>`
+          : html`<${IBox} s=${48}/>`}
+        ${out && html`<div className="stock-out-overlay"><span className="stock-out-tag">Tugadi</span></div>`}
+        ${inCart > 0 && html`<div className="in-cart-dot">${inCart}</div>`}
+      </div>
+
+      <!-- Name -->
+      <div className="product-name clamp2">${p.name}</div>
+
+      <!-- Meta: stock info -->
+      ${phone && !out && html`
+        <div className="product-meta">${p.stock} ta mavjud</div>`}
+      ${!phone && !hasVariants && p.stock_type === 'tracked' && !out && html`
+        <div className="product-meta">${maxQty} ${unit?.unit_name||'dona'} mavjud</div>`}
+      ${out && html`<div className="product-meta" style=${{color:'#e53e3e'}}>Sotib bo'lindi</div>`}
+      ${hasVariants && !out && html`
+        <div className="product-meta">${p.variants.filter(v=>v.in_stock).length} variant mavjud</div>`}
+
+      <!-- Price -->
+      <div className="product-price">
+        ${!phone && dispOrigVal != null && html`<span className="price-orig-strike">${hasVariants ? 'dan '+money(dispOrigVal, dispCur) : money(dispOrigVal, dispCur)}</span>`}
+        ${phone
+          ? money(phone.from_cur_price ?? phone.from_price, phone.currency ?? '') + ' dan'
+          : (hasVariants ? 'dan '+money(dispVal, dispCur) : money(dispVal, dispCur))}
+        ${p.discount_percent > 0 && html`<span className="disc-badge">−${Math.round(p.discount_percent)}%</span>`}
+      </div>
+
+      <!-- Unit selector (non-variant only) -->
+      ${!phone && !hasVariants && p.units?.length > 1 && html`
+        <div className="unit-row" onClick=${e=>e.stopPropagation()}>
+          <span className="unit-label">Birlik:</span>
+          <div className="unit-select-wrap">
+            <select className="unit-select" value=${unitId??''} onChange=${e=>setUnitId(+e.target.value)}>
+              ${p.units.map(u => html`<option key=${u.unit_id} value=${u.unit_id}>${u.unit_name}</option>`)}
+            </select>
+            <span className="unit-caret"><${ICaret} s=${11}/></span>
+          </div>
+        </div>`}
+
+      <!-- Controls -->
+      <div className="controls-row" onClick=${e=>e.stopPropagation()}>
+        ${hasVariants
+          ? html`<button className="add-btn" style=${{flex:1}} onClick=${e=>{e.stopPropagation();onDetail(p)}}
+              disabled=${out}>
+              ${out ? 'Tugadi' : 'Tanlang'}
+            </button>`
+          : inCart > 0
+            // Savatda bo'lsa — Uzumdek +/- stepper (cart qty'ni boshqaradi)
+            ? html`
+              <div className="qty-wrap">
+                <button className="qty-btn" onClick=${e=>{e.stopPropagation();setQty(cartKey, inCart-1)}}>−</button>
+                <span className="qty-num">${fmtQty(inCart)}</span>
+                <button className="qty-btn" onClick=${e=>{e.stopPropagation(); if(maxQty===Infinity||inCart<maxQty) onAdd(p, unit, addBtnRef.current)}}>+</button>
+              </div>`
+            // Savatda yo'q — bitta "Savatga" tugmasi
+            : html`
+              <button ref=${addBtnRef} className=${'add-btn'+(out?' btn-tugadi':added?' btn-added':'')} style=${{flex:1}} onClick=${handleAdd} disabled=${out}>
+                ${out ? 'Tugadi' : added ? '✓' : 'Savatga'}
+              </button>`}
+      </div>
+    </div>`
+}
+
+// ── Skeleton ────────────────────────────────────────────────────────────
+function Skeleton() {
+  return html`
+    <div className="product-grid">
+      ${Array.from({length:8}).map((_,i) => html`
+        <div key=${i} style=${{display:'flex',flexDirection:'column',gap:10}}>
+          <div className="skel" style=${{aspectRatio:'1/1',borderRadius:12}}></div>
+          <div className="skel" style=${{height:14,width:'70%',borderRadius:6}}></div>
+          <div className="skel" style=${{height:12,width:'45%',borderRadius:6}}></div>
+          <div className="skel" style=${{height:18,width:'55%',borderRadius:6}}></div>
+          <div className="skel" style=${{height:36,borderRadius:8}}></div>
+        </div>`)}
+    </div>`
+}
+
+// ── CartSheet ────────────────────────────────────────────────────────────
+function CartSheet({ open, onClose, items, setQty, remove, total, onCheckout }) {
+  if (!open) return null
+  const count = items.reduce((s,i)=>s+i.qty,0)
+  return html`
+    <div className="overlay-bg fade-in">
+      <div className="overlay-dim" onClick=${onClose}></div>
+      <div className="cart-sheet-new slide-up">
+        <div className="cart-handle"></div>
+        <div className="cart-head-new">
+          <div style=${{display:'flex',alignItems:'center'}}>
+            <span className="cart-title-new">Savatcha</span>
+            ${count>0 && html`<span className="cart-count-chip">${count} ta</span>`}
+          </div>
+          <button className="close-btn" onClick=${onClose}><${IX}/></button>
+        </div>
+
+        <div className="cart-items-list">
+          ${items.length === 0
+            ? html`<div className="cart-empty-new">
+                <div className="cart-empty-icon">🛒</div>
+                <div className="cart-empty-text">Savat bo'sh</div>
+                <div className="cart-empty-sub">Mahsulot qo'shish uchun katalogga qayting</div>
+              </div>`
+            : items.map((it, idx) => html`
+              <${React.Fragment} key=${it.key}>
+                <div className="cart-item-new">
+                  <div className="cart-thumb-new">
+                    ${it.image
+                      ? html`<img src=${media(it.image)} alt=${it.name}/>`
+                      : html`<${IBox} s=${28}/>`}
+                  </div>
+                  <div className="cart-info-new">
+                    <div className="cart-name-new clamp2">${it.name}${it.variant_name ? ' · '+it.variant_name : ''}</div>
+                    ${it.imei && html`<div className="cart-item-imei">${it.imei}</div>`}
+                    ${it.spec_label && html`<div className="cart-item-imei">${it.spec_label}</div>`}
+                    <div className="cart-price-new">${it.currency==='USD' && it.cur_price!=null ? money(it.cur_price*it.qty, it.currency) : som(it.price*it.qty)}</div>
+                    <div className="cart-unit-new">${it.currency==='USD' && it.cur_price!=null ? money(it.cur_price, it.currency) : som(it.price)} × ${fmtQty(it.qty)} ${it.unit_name}</div>
+                  </div>
+                  ${it.weight
+                    ? html`<div className="cart-qty-ctrl">
+                        <input type="number" step="0.001" min="0" className="cart-qty-input"
+                          defaultValue=${it.qty}
+                          onChange=${e=>setQty(it.key, +e.target.value||0)}/>
+                        <span className="cqu">${it.unit_name}</span>
+                        <button className="cqb cqb-del" onClick=${()=>remove(it.key)}><${IX} s=${12}/></button>
+                      </div>`
+                    : html`<div className="cart-qty-ctrl">
+                        <button className=${'cqb'+(it.qty===1?' cqb-del':'')}
+                          onClick=${()=>it.qty===1?remove(it.key):setQty(it.key,it.qty-1)}>
+                          ${it.qty===1?html`<${IX} s=${12}/>`:html`−`}
+                        </button>
+                        <span className="cqn">${it.qty}</span>
+                        <button className="cqb" onClick=${()=>setQty(it.key,it.qty+1)}>+</button>
+                      </div>`}
+                </div>
+                ${idx < items.length-1 && html`<div className="cart-divider"></div>`}
+              </${React.Fragment}>`)
+          }
+        </div>
+
+        <div className="cart-footer-new">
+          <div className="cart-total-card">
+            <span className="cart-total-lbl">Jami summa</span>
+            <span className="cart-total-val">${groupTotal(items)}</span>
+          </div>
+          <button className="cart-checkout-btn" disabled=${items.length===0}
+            onClick=${()=>{onClose();onCheckout()}}>
+            Buyurtma berish
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`
+}
+
+// ── Xarita picker (Leaflet + OSM) ────────────────────────────────────────
+function MapPicker({ open, initial, onPick, onClose }) {
+  const boxRef = useRef(null)
+  const mapRef = useRef(null)
+  const ctrRef = useRef(initial && initial.lat != null ? initial : { lat:41.311081, lng:69.240562 })
+  const [addr, setAddr] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!open || !window.L || !boxRef.current) return
+    const L = window.L
+    const c = ctrRef.current
+    const map = L.map(boxRef.current, { attributionControl:false }).setView([c.lat, c.lng], 16)
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map)
+    mapRef.current = map
+    let t
+    const resolve = async () => {
+      const p = map.getCenter()
+      ctrRef.current = { lat:p.lat, lng:p.lng }
+      setLoading(true)
+      const a = await reverseGeocode(p.lat, p.lng)
+      setAddr(a); setLoading(false)
+    }
+    map.on('moveend', () => { clearTimeout(t); t = setTimeout(resolve, 350) })
+    setTimeout(() => { map.invalidateSize(); resolve() }, 120)
+    return () => { clearTimeout(t); map.remove(); mapRef.current = null }
+  }, [open])
+
+  if (!open) return null
+  const locate = () => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      p => mapRef.current && mapRef.current.setView([p.coords.latitude, p.coords.longitude], 17),
+      () => {}, { enableHighAccuracy:true, timeout:15000 })
+  }
+  return html`
+    <div style=${{position:'fixed',inset:0,zIndex:1000,background:'#000'}}>
+      <div ref=${boxRef} style=${{position:'absolute',inset:0}}></div>
+      <div style=${{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-100%)',pointerEvents:'none',fontSize:42,zIndex:500}}>📍</div>
+      <button onClick=${onClose} style=${{position:'absolute',top:16,left:16,zIndex:600,width:44,height:44,borderRadius:22,border:'none',background:'#fff',fontSize:18,cursor:'pointer',boxShadow:'0 2px 10px rgba(0,0,0,.3)'}}>✕</button>
+      <button onClick=${locate} style=${{position:'absolute',right:16,bottom:190,zIndex:600,width:46,height:46,borderRadius:23,border:'none',background:'#fff',fontSize:20,cursor:'pointer',boxShadow:'0 2px 10px rgba(0,0,0,.3)'}}>🎯</button>
+      <div style=${{position:'absolute',left:0,right:0,bottom:0,background:'#fff',borderRadius:'18px 18px 0 0',padding:'18px 20px calc(18px + env(safe-area-inset-bottom))',zIndex:600}}>
+        <div style=${{fontSize:11,fontWeight:700,color:'#888',letterSpacing:.6,marginBottom:8}}>TANLANGAN JOY</div>
+        <div style=${{background:'#f4f4f4',borderRadius:12,padding:14,fontSize:14,fontWeight:700,color:'#222',marginBottom:14,lineHeight:1.4}}>${loading ? 'Aniqlanmoqda...' : (addr || 'Manzil aniqlanmadi (koordinata saqlanadi)')}</div>
+        <button onClick=${()=>onPick(ctrRef.current.lat, ctrRef.current.lng, addr)} style=${{width:'100%',height:52,border:'none',borderRadius:14,background:ACCENT,color:'#fff',fontSize:16,fontWeight:800,cursor:'pointer'}}>Shu yerni tanlash</button>
+      </div>
+    </div>`
+}
+
+// ── Checkout ─────────────────────────────────────────────────────────────
+function Checkout({ open, onClose, total, totalStr, onSubmit, submitting, customer }) {
+  const [name,  setName]  = useState(customer?.name||'')
+  const [phone, setPhone] = useState(customer?.phone||'')
+  const [delivery, setDelivery] = useState('courier')
+  const [payment,  setPayment]  = useState('cash')
+  const [address,  setAddress]  = useState('')
+  const [landmark, setLandmark] = useState('')
+  const [lat, setLat] = useState(null)
+  const [lng, setLng] = useState(null)
+  const [locating, setLocating] = useState(false)
+  const [mapOpen, setMapOpen] = useState(false)
+  const [err, setErr] = useState('')
+  const courier = delivery === 'courier'
+  if (!open) return null
+
+  const locateMe = () => {
+    if (!navigator.geolocation) { setErr("Qurilma joylashuvni qo'llamaydi"); return }
+    setLocating(true); setErr('')
+    navigator.geolocation.getCurrentPosition(async p => {
+      setLat(p.coords.latitude); setLng(p.coords.longitude)
+      const a = await reverseGeocode(p.coords.latitude, p.coords.longitude)
+      if (a) setAddress(a)
+      setLocating(false)
+    }, () => { setLocating(false); setErr("Joylashuvga ruxsat berilmadi") }, { enableHighAccuracy:true, timeout:15000 })
+  }
+
+  const go = () => {
+    if (!name.trim() || !phone.trim()) { setErr('Ism va telefon raqami majburiy'); return }
+    if (courier && !address.trim() && lat == null) { setErr('Manzil kiriting yoki xaritadan belgilang'); return }
+    onSubmit({
+      customer_name: name.trim(), phone: phone.trim(),
+      delivery_type: delivery, payment_method: payment,
+      ...(courier ? { address: address.trim(), landmark: landmark.trim() } : {}),
+      ...(courier && lat != null ? { latitude: lat, longitude: lng } : {}),
+    })
+  }
+
+  const seg = (v,label) => html`<button onClick=${()=>setDelivery(v)} style=${{flex:1,height:48,borderRadius:12,border:'1.5px solid '+(delivery===v?ACCENT:'rgba(150,150,150,.35)'),background:delivery===v?ACCENT:'transparent',color:delivery===v?'#fff':'inherit',fontSize:15,fontWeight:600,cursor:'pointer'}}>${label}</button>`
+  const payCard = (v,title,sub) => html`<button onClick=${()=>setPayment(v)} style=${{display:'flex',alignItems:'center',gap:12,width:'100%',textAlign:'left',padding:14,borderRadius:12,border:(payment===v?'2px solid '+ACCENT:'1.5px solid rgba(150,150,150,.3)'),background:'transparent',color:'inherit',cursor:'pointer'}}>
+    <div style=${{flex:1}}><div style=${{fontSize:15,fontWeight:600}}>${title}</div><div style=${{fontSize:12,color:'rgba(150,150,150,.95)',marginTop:2}}>${sub}</div></div>
+    <div style=${{width:20,height:20,borderRadius:10,border:'2px solid '+(payment===v?ACCENT:'rgba(150,150,150,.5)'),background:payment===v?ACCENT:'transparent',flexShrink:0}}></div>
+  </button>`
+
+  return html`
+    <div className="overlay-bg fade-in">
+      <div className="overlay-dim" onClick=${onClose}></div>
+      <div className="bottom-sheet slide-up" style=${{maxWidth:560,margin:'0 auto'}}>
+        <div className="sheet-handle"></div>
+        <div className="sheet-header">
+          <div className="sheet-title">Buyurtmani rasmiylashtirish</div>
+          <button className="close-btn" onClick=${onClose}><${IX}/></button>
+        </div>
+        <div style=${{padding:'0 20px 36px',display:'flex',flexDirection:'column',gap:14,marginTop:8,flex:1,overflowY:'auto',minHeight:0}}>
+
+          <div>
+            <div className="form-label" style=${{marginBottom:8}}>YETKAZIB BERISH</div>
+            <div style=${{display:'flex',gap:10}}>${seg('courier','Kuryer')} ${seg('pickup','Olib ketaman')}</div>
+          </div>
+
+          ${courier && html`
+            <div className="form-field">
+              <label className="form-label">Manzil</label>
+              <input className="form-input" value=${address} onInput=${e=>setAddress(e.target.value)} placeholder="Ko'cha, uy, xonadon"/>
+            </div>
+            <div className="form-field">
+              <label className="form-label">Mo'ljal (ixtiyoriy)</label>
+              <input className="form-input" value=${landmark} onInput=${e=>setLandmark(e.target.value)} placeholder="Masalan: maktab yonida"/>
+            </div>
+            <div style=${{display:'flex',gap:10}}>
+              <button onClick=${locateMe} disabled=${locating} style=${{flex:1,height:46,borderRadius:12,border:'1.5px solid rgba(150,150,150,.35)',background:'transparent',color:'inherit',fontSize:14,fontWeight:700,cursor:'pointer'}}>${locating?'Aniqlanmoqda...':'📍 Meni topish'}</button>
+              <button onClick=${()=>setMapOpen(true)} style=${{flex:1,height:46,borderRadius:12,border:'1.5px solid '+(lat!=null?ACCENT:'rgba(150,150,150,.35)'),background:lat!=null?ACCENT:'transparent',color:lat!=null?'#fff':'inherit',fontSize:14,fontWeight:700,cursor:'pointer'}}>🗺️ Xaritadan belgilash</button>
+            </div>
+            ${lat!=null && html`<div style=${{fontSize:12,color:'#16a34a',fontWeight:700,marginTop:-4}}>✓ Joylashuv belgilandi</div>`}
+          `}
+
+          <div>
+            <div className="form-label" style=${{marginBottom:8}}>TO'LOV USULI</div>
+            <div style=${{display:'flex',flexDirection:'column',gap:10}}>
+              ${payCard('cash','Naqd pul',"Kuryerga qo'lma-qo'l topshirasiz")}
+              ${payCard('card','Karta orqali','Operator karta raqamini yuboradi')}
+            </div>
+          </div>
+
+          <div className="form-field">
+            <label className="form-label">Ismingiz</label>
+            <input className="form-input" value=${name} onInput=${e=>setName(e.target.value)} placeholder="Ism Familiya"/>
+          </div>
+          <div className="form-field">
+            <label className="form-label">Telefon raqam</label>
+            <input className="form-input" type="tel" value=${phone} onInput=${e=>setPhone(e.target.value)} placeholder="+998 90 000 00 00"/>
+          </div>
+
+          ${err && html`<div className="err-box">${err}</div>`}
+        </div>
+        <div style=${{padding:'12px 20px calc(16px + env(safe-area-inset-bottom))',borderTop:'1px solid rgba(150,150,150,.2)',flexShrink:0,background:'inherit'}}>
+          <div className="total-row" style=${{marginBottom:12}}>
+            <span className="total-label">Jami</span>
+            <span className="total-val">${totalStr || som(total)}</span>
+          </div>
+          <button className="primary-btn" onClick=${go} disabled=${submitting}>
+            ${submitting ? 'Yuborilmoqda...' : 'Buyurtmani tasdiqlash'}
+          </button>
+        </div>
+      </div>
+      <${MapPicker} open=${mapOpen} initial=${lat!=null?{lat,lng}:null}
+        onPick=${(la,ln,a)=>{ setLat(la); setLng(ln); if(a) setAddress(a); setMapOpen(false) }}
+        onClose=${()=>setMapOpen(false)}/>
+    </div>`
+}
+
+// ── Login ──────────────────────────────────────────────────────────────────
+function Login({ open, onClose, onLogin }) {
+  const [code, setCode] = useState('')
+  const [err,  setErr]  = useState('')
+  const [busy, setBusy] = useState(false)
+  if (!open) return null
+  const go = async () => {
+    if (!code.trim()) { setErr('ID kiriting'); return }
+    setBusy(true); setErr('')
+    try { onLogin(await api('/storefront/login/',{method:'POST',body:JSON.stringify({code:code.trim()})})) }
+    catch(e) { setErr(e.message) } finally { setBusy(false) }
+  }
+  return html`
+    <div className="modal-center fade-in">
+      <div className="modal-card pop-in">
+        <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+          <div style=${{fontWeight:700,fontSize:17,color:'#111'}}>Mijoz sifatida kirish</div>
+          <button className="close-btn" onClick=${onClose}><${IX}/></button>
+        </div>
+        <p style=${{fontSize:13,color:'#aaa',marginBottom:20,textAlign:'left'}}>Do'kondan olgan ID raqamingizni kiriting</p>
+        <input value=${code} onInput=${e=>setCode(e.target.value.toUpperCase())}
+          onKeyDown=${e=>e.key==='Enter'&&go()}
+          placeholder="CUST-XXXXXX"
+          style=${{width:'100%',height:48,border:'1.5px solid #e5e5e5',borderRadius:10,paddingLeft:14,fontSize:15,fontFamily:'monospace',letterSpacing:2,color:'#111',background:'#fafafa',marginBottom:err?10:0}}/>
+        ${err && html`<div className="err-box" style=${{marginBottom:10}}>${err}</div>`}
+        <button className="primary-btn" style=${{marginTop:12}} onClick=${go} disabled=${busy}>
+          ${busy ? 'Tekshirilmoqda...' : 'Kirish'}
+        </button>
+      </div>
+    </div>`
+}
+
+// ── Success ────────────────────────────────────────────────────────────────
+function Success({ order, onClose }) {
+  return html`
+    <div className="modal-center fade-in">
+      <div className="modal-card pop-in">
+        <div className="success-icon">✅</div>
+        <div style=${{fontWeight:800,fontSize:20,color:'#111',marginBottom:8}}>Buyurtma qabul qilindi!</div>
+        <div style=${{color:'#aaa',fontSize:13,marginBottom:4}}>Buyurtma raqami</div>
+        <div style=${{fontWeight:800,fontSize:20,color:AD,marginBottom:8}}>${order.order_no}</div>
+        <div style=${{color:'#bbb',fontSize:13,marginBottom:28}}>Do'kon tez orada siz bilan bog'lanadi</div>
+        <button className="dark-btn" onClick=${onClose}>Xaridni davom ettirish</button>
+      </div>
+    </div>`
+}
+
+// ── CustomerPortal ────────────────────────────────────────────────────────
+function CustomerPortal({ open, onClose, customer, onLogout }) {
+  const [data,    setData]  = useState(null)
+  const [loading, setLoad]  = useState(false)
+  const [err,     setErr]   = useState('')
+  const [tab,     setTab]   = useState('profile')
+  const [openSale, setOpenSale] = useState(null)
+
+  useEffect(() => {
+    if (!open||!customer) return
+    setLoad(true); setErr(''); setData(null)
+    api('/storefront/customer/?code='+encodeURIComponent(customer.customer_code))
+      .then(setData).catch(e=>setErr(e.message)).finally(()=>setLoad(false))
+  }, [open, customer?.customer_code])
+
+  if (!open) return null
+
+  const fmt = iso => {
+    try {
+      const d = new Date(iso)
+      if (isNaN(d.getTime())) return ''
+      const MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr']
+      const day = String(d.getDate()).padStart(2,'0')
+      return `${day} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+    } catch(e) { return '' }
+  }
+  const TABS = [
+    {k:'profile', l:'Hisobim',   icon:'👤'},
+    {k:'sales',   l:'Xaridlar',  icon:'🧾'},
+    {k:'orders',  l:'Zakazlar',  icon:'📦'},
+    {k:'payments',l:"To'lovlar", icon:'💳'},
+  ]
+  const ST = {
+    new:        ['Yangi',        '#3b82f6'],
+    confirmed:  ['Tasdiqlangan', '#f59e0b'],
+    sold:       ['Yetkazilgan',  '#22c55e'],
+    cancelled:  ['Bekor',        '#9ca3af'],
+  }
+
+  return html`
+    <div className="overlay-bg fade-in">
+      <div className="overlay-dim" onClick=${onClose}></div>
+      <div className="portal-sheet slide-up">
+        <div className="portal-handle"></div>
+
+        <!-- Header -->
+        <div className="portal-head">
+          <span className="portal-title">Mening hisobim</span>
+          <div style=${{display:'flex',gap:8,alignItems:'center'}}>
+            <button className="portal-logout" onClick=${()=>{onLogout();onClose()}}>Chiqish</button>
+            <button className="close-btn" onClick=${onClose}><${IX}/></button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div className="portal-tabs">
+          ${TABS.map(t => html`
+            <button key=${t.k} className=${'portal-tab'+(tab===t.k?' active':'')} onClick=${()=>setTab(t.k)}>
+              ${t.l}
+            </button>`)}
+        </div>
+
+        <!-- Body -->
+        <div className="portal-body">
+          ${loading && html`<div className="portal-loading">Yuklanmoqda...</div>`}
+          ${err && html`<div className="err-box">${err}</div>`}
+
+          <!-- Profile tab -->
+          ${data && tab==='profile' && html`
+            <div className="portal-profile-card">
+              <div className="portal-avatar">${(data.customer.name||'?')[0].toUpperCase()}</div>
+              <div className="portal-profile-info">
+                <div className="portal-profile-label">Mijoz</div>
+                <div className="portal-profile-name">${data.customer.name}</div>
+                <div className="portal-profile-meta">${data.customer.code}${data.customer.phone?' · '+data.customer.phone:''}</div>
+              </div>
+            </div>
+            <div className="portal-stat-grid">
+              <div className=${'portal-stat'+((data.customer.debt>0||Object.keys(data.customer.currency_debts||{}).length>0)?' debt':'')}>
+                <div className="portal-stat-label">Qarz</div>
+                <div className="portal-stat-val">${som(data.customer.debt||0)}</div>
+                ${Object.entries(data.customer.currency_debts||{}).map(([c,a],k)=>html`
+                  <div key=${k} className="portal-stat-val" style=${{fontSize:14,marginTop:2}}>${a} ${c}</div>`)}
+              </div>
+              <div className=${'portal-stat'+(data.customer.credit>0?' credit':'')}>
+                <div className="portal-stat-label">Ortiqcha to'lov</div>
+                <div className="portal-stat-val">${som(data.customer.credit||0)}</div>
+              </div>
+            </div>
+            <div style=${{border:'1.5px solid #f0f0f0',borderRadius:14,padding:'14px 16px',background:'#fafafa',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style=${{fontSize:12,color:'#888',fontWeight:600}}>Jami xarid qilingan</span>
+              <span style=${{fontSize:16,fontWeight:800,color:'#111'}}>${som(data.sales.reduce((s,x)=>s+(x.total||0),0))}</span>
+            </div>`}
+
+          <!-- Sales tab -->
+          ${data && tab==='sales' && html`
+            ${!data.sales.length
+              ? html`<div className="portal-empty">🧾 Xaridlar yo'q</div>`
+              : data.sales.map((s,i) => {
+                  try {
+                    const label = s.receipt_number || ('Xarid #'+(i+1))
+                    const dateStr = fmt(s.created_at)
+                    const total = +(s.total)||0
+                    const debt = +(s.debt)||0
+                    const paid = +(s.paid)||0
+                    const breakdown = s.payment_breakdown||[]
+                    const expanded = openSale===i
+                    return html`
+                      <div key=${i} style=${{border:'1.5px solid #eee',borderRadius:14,overflow:'hidden',background:'#fff',flexShrink:0}}>
+                        <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'13px 16px',cursor:'pointer',background:'#fff',minHeight:52}} onClick=${()=>setOpenSale(expanded?null:i)}>
+                          <div style=${{flex:1,minWidth:0}}>
+                            <div style=${{fontWeight:700,fontSize:13,color:'#111',marginBottom:2}}>${label}</div>
+                            <div style=${{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+                              <span style=${{fontSize:11,color:'#999'}}>${dateStr}</span>
+                              <span style=${{fontSize:10,color:'#475569',background:'#f1f5f9',padding:'1px 6px',borderRadius:5,fontWeight:600}}>${pmLabel(s.payment_method)}</span>
+                            </div>
+                          </div>
+                          <div style=${{display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+                            <div style=${{textAlign:'right'}}>
+                              <div style=${{fontWeight:800,fontSize:14,color:'#111',whiteSpace:'nowrap'}}>${som(total)}</div>
+                              ${debt>0 && html`<div style=${{fontSize:10,color:'#ef4444',fontWeight:700,whiteSpace:'nowrap'}}>Qarz: ${s.debt_currency&&s.debt_currency_amount?(s.debt_currency_amount+' '+s.debt_currency):som(debt)}</div>`}
+                            </div>
+                            <span style=${{display:'inline-block',width:0,height:0,borderLeft:'5px solid transparent',borderRight:'5px solid transparent',...(expanded?{borderBottom:'6px solid #bbb'}:{borderTop:'6px solid #bbb'})}}></span>
+                          </div>
+                        </div>
+                        ${expanded && html`
+                          <div style=${{borderTop:'1px solid #f0f0f0',padding:'10px 16px',background:'#fafafa',display:'flex',flexDirection:'column',gap:6}}>
+                            ${s.items && s.items.map((it,j)=>html`
+                              <div key=${j} style=${{display:'flex',justifyContent:'space-between',fontSize:12}}>
+                                <span style=${{color:'#555'}}>${it.name||it.product_name||''}</span>
+                                <span style=${{color:'#111',fontWeight:700}}>${+(it.qty||it.quantity||0)} ${it.unit||it.unit_name||''} × ${som(+(it.price||0))}</span>
+                              </div>`)}
+                            <div style=${{borderTop:'1px dashed #e2e8f0',marginTop:4,paddingTop:6,display:'flex',flexDirection:'column',gap:4}}>
+                              <div style=${{display:'flex',justifyContent:'space-between',fontSize:11}}><span style=${{color:'#999'}}>To'lov usuli</span><span style=${{color:'#111',fontWeight:700}}>${pmLabel(s.payment_method)}</span></div>
+                              ${breakdown.length>1 && breakdown.map((b,k)=>html`
+                                <div key=${k} style=${{display:'flex',justifyContent:'space-between',fontSize:11}}><span style=${{color:'#999'}}>   · ${pmLabel(b.method)}</span><span style=${{color:'#111',fontWeight:600}}>${som(+(b.amount||0))}</span></div>`)}
+                              <div style=${{display:'flex',justifyContent:'space-between',fontSize:11}}><span style=${{color:'#999'}}>To'landi</span><span style=${{color:'#111',fontWeight:700}}>${som(paid)}</span></div>
+                              ${debt>0 && html`<div style=${{display:'flex',justifyContent:'space-between',fontSize:11}}><span style=${{color:'#ef4444'}}>Nasiya (qarz)</span><span style=${{color:'#ef4444',fontWeight:700}}>${s.debt_currency&&s.debt_currency_amount?(s.debt_currency_amount+' '+s.debt_currency):som(debt)}</span></div>`}
+                              ${debt>0 && s.debt_currency && s.debt_currency_amount && html`<div style=${{display:'flex',justifyContent:'space-between',fontSize:10,color:'#b45309'}}><span>Qarz ${s.debt_currency} da yozildi</span><span>kurs: ${som(s.debt_rate||0)} · ≈ ${som(debt)}</span></div>`}
+                            </div>
+                          </div>`}
+                      </div>`
+                  } catch(e) { return html`<div key=${i} style=${{color:'#999',fontSize:12,padding:'10px 16px'}}>Xarid #${i+1}</div>` }
+                })}`}
+
+          <!-- Orders tab -->
+          ${data && tab==='orders' && html`
+            ${!data.online_orders.length
+              ? html`<div style=${{textAlign:'center',padding:'48px 20px',color:'#ccc',fontSize:14,fontWeight:600}}>📦 Zakazlar yo'q</div>`
+              : data.online_orders.map((o,i) => {
+                  const sColor = (ST[o.status]||['','#999'])[1]
+                  const sLabel = (ST[o.status]||[o.status||'?'])[0]
+                  return html`
+                    <div key=${i} style=${{border:'1.5px solid #eee',borderRadius:14,overflow:'hidden',background:'#fff',flexShrink:0}}>
+                      <div style=${{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'13px 16px',background:'#fff',minHeight:52}}>
+                        <div>
+                          <div style=${{fontWeight:700,fontSize:13,color:'#111'}}>${o.order_no||('Zakaz #'+(i+1))}</div>
+                          <div style=${{fontSize:11,color:'#999',marginTop:2}}>${o.created_at?fmt(o.created_at):''}</div>
+                          <div style=${{fontWeight:800,fontSize:14,color:'#111',marginTop:6}}>${som(+(o.total||0))}</div>
+                        </div>
+                        <span style=${{color:sColor,background:sColor+'1a',fontSize:11,fontWeight:700,borderRadius:999,padding:'3px 10px',flexShrink:0}}>${sLabel}</span>
+                      </div>
+                    </div>`
+                })}`}
+
+          <!-- Payments tab -->
+          ${data && tab==='payments' && html`
+            ${!data.payments.length
+              ? html`<div style=${{textAlign:'center',padding:'48px 20px',color:'#ccc',fontSize:14,fontWeight:600}}>💳 To'lovlar yo'q</div>`
+              : data.payments.map((p,i) => html`
+                <div key=${i} style=${{display:'flex',justifyContent:'space-between',alignItems:'center',border:'1.5px solid #eee',borderRadius:14,padding:'13px 16px',background:'#fff',flexShrink:0}}>
+                  <div>
+                    <div style=${{fontWeight:700,fontSize:15,color:'#22c55e'}}>+${som(+(p.amount||0))}</div>
+                    <div style=${{fontSize:11,color:'#999',marginTop:2}}>${p.created_at?fmt(p.created_at):''}</div>
+                    ${p.note?html`<div style=${{fontSize:11,color:'#bbb',marginTop:2}}>${p.note}</div>`:null}
+                  </div>
+                  <div style=${{width:36,height:36,borderRadius:'50%',background:'#f0fdf4',display:'flex',alignItems:'center',justifyContent:'center',color:'#22c55e',fontSize:16,fontWeight:700,flexShrink:0}}>✓</div>
+                </div>`)}`}
+        </div>
+      </div>
+    </div>`
+}
+
+// ── App ─────────────────────────────────────────────────────────────────────
+// ── Banner karusel (avtomatik aylanadi) ─────────────────────────────────────
+function BannerCarousel({ banners }) {
+  const [idx, setIdx] = useState(0)
+  const timerRef = useRef(null)
+  const n = banners ? banners.length : 0
+
+  const resume = () => {
+    clearInterval(timerRef.current)
+    if (n > 1) timerRef.current = setInterval(() => setIdx(i => (i + 1) % n), 4000)
+  }
+  useEffect(() => { resume(); return () => clearInterval(timerRef.current) }, [n])
+  useEffect(() => { setIdx(0) }, [banners])
+
+  if (!n) return null
+  const go = d => setIdx(i => (i + d + n) % n)
+
+  return html`
+    <div className="banner-wrap">
+      <div className="banner-viewport" onMouseEnter=${()=>clearInterval(timerRef.current)} onMouseLeave=${resume}>
+        <div className="banner-track" style=${{transform:`translateX(-${idx*100}%)`}}>
+          ${banners.map((b,i) => {
+            const src = typeof b === 'string' ? b : (b.image || b.url || b.photo)
+            const title = typeof b === 'string' ? '' : (b.title || '')
+            return html`<div key=${i} className="banner-slide">
+              <img src=${media(src)} alt=${title} loading=${i===0?'eager':'lazy'}/>
+              ${title && html`<div className="banner-title">${title}</div>`}
+            </div>`
+          })}
+        </div>
+        ${n > 1 && html`<${React.Fragment}>
+          <button className="banner-arrow prev" onClick=${()=>go(-1)} aria-label="Oldingi banner">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button className="banner-arrow next" onClick=${()=>go(1)} aria-label="Keyingi banner">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <div className="banner-dots">
+            ${banners.map((_,i) => html`<button key=${i} className=${'banner-dot'+(i===idx?' active':'')} onClick=${()=>setIdx(i)} aria-label=${'Banner '+(i+1)}></button>`)}
+          </div>
+        </${React.Fragment}>`}
+      </div>
+    </div>`
+}
+
+function App() {
+  const [info,      setInfo]     = useState(null)
+  const [products,  setProds]    = useState([])
+  const [topIds,    setTopIds]   = useState([])   // eng ko'p sotilgan tovar ID'lari (tavsiya)
+  const [cats,      setCats]     = useState([])
+  const [showImages,setShowImg]  = useState(true)
+  const [catImgs,   setCatImgs]  = useState({})
+  const [loading,   setLoad]     = useState(true)
+  const [error,     setErr]      = useState('')
+
+  const [search,    setSearch]   = useState('')
+  const [selTop,    setSelTop]   = useState(null)
+  const [selSub,    setSelSub]   = useState(null)
+
+  const [cart,      setCart]     = useState([])
+  const [cartOpen,  setCartOpen] = useState(false)
+  const [chkOpen,   setChkOpen]  = useState(false)
+  const [subbing,   setSubbing]  = useState(false)
+  const [done,      setDone]     = useState(null)
+
+  const [customer,  setCust]     = useState(()=>{try{return JSON.parse(localStorage.getItem('sf_cust')||'null')}catch{return null}})
+  const [loginOpen, setLoginOpen]= useState(false)
+  const [portalOpen,setPortal]   = useState(false)
+  const [srchOpen,  setSrchOpen] = useState(false)
+  const [drawerOpen,  setDrawer]    = useState(false)
+  const [navActive,   setNavActive] = useState('home')
+  const [detailProd,  setDetail]    = useState(null)
+
+  const searchRef  = useRef(null)
+  const navCartRef = useRef(null)
+
+  const [catStuck, setCatStuck] = useState(false)
+  const catSentinelRef = useRef(null)
+
+  const [activeCat, setActiveCat] = useState(null)
+  const [scrollToCatId, setScrollToCatId] = useState(null)
+  const sectionRefs = useRef({})
+
+  const [subDropdown, setSubDropdown] = useState(null)
+  const chipRefs = useRef({})
+  const pageTitleRef = useRef(null)
+
+  useEffect(() => {
+    if (!subDropdown) return
+    const close = () => setSubDropdown(null)
+    const onKey = e => { if (e.key === 'Escape') close() }
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [subDropdown])
+
+  const toggleSubDropdown = (catId, chipEl) => {
+    setSubDropdown(sd => {
+      if (sd && sd.catId === catId) return null
+      const rect = chipEl.getBoundingClientRect()
+      return { catId, top: rect.bottom + 8, left: rect.left }
+    })
+  }
+
+  const pickSubFromDropdown = (topId, subId) => {
+    setSelTop(topId); setSelSub(subId); setSubDropdown(null)
+    pageTitleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  useEffect(() => {
+    const el = catSentinelRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => setCatStuck(!entry.isIntersecting),
+      { rootMargin: '-64px 0px 0px 0px', threshold: 0 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [cats])
+
+  useEffect(() => { api('/storefront/info/').then(d => { BASE_CUR = (d && d.currency === '$') ? 'USD' : 'UZS'; setInfo(d) }).catch(()=>{}) }, [])
+
+  // Eng ko'p sotilgan tovarlar (tavsiya bo'limi) — faqat ID'lar, yuklangan
+  // mahsulotlar bilan solishtiriladi (topProducts)
+  useEffect(() => {
+    api('/storefront/top-products/?limit=12').then(r => setTopIds(r.product_ids || [])).catch(()=>{})
+  }, [])
+
+  // dukonline.uz "Online do'kon → Bannerlar" bo'limidan yuklangan rasmlar bo'lsa
+  // o'shalar ko'rsatiladi, hali hech narsa yuklanmagan bo'lsa — namuna rasmlar.
+  const banners = useMemo(() => {
+    const fromApi = (info?.banners || [])
+      .map(b => typeof b === 'string' ? b : (b.image_url || b.image || b.url || b.photo || b.file))
+      .filter(Boolean).map(media)
+    return fromApi.length ? fromApi : DEMO_BANNERS
+  }, [info])
+
+  useEffect(() => {
+    setLoad(true)
+    const q = customer ? '?customer_code='+encodeURIComponent(customer.customer_code) : ''
+    api('/storefront/products/'+q).then(r => {
+      const list = r.results || []
+      setProds(list)
+      setShowImg(r.show_images !== false)
+      setCatImgs(Object.fromEntries((r.category_images||[]).map(c => [c.id, c.image])))
+      // Kategoriya daraxti: leaf (o'z parent'i bilan) + parent kategoriyalar
+      const map = new Map()
+      list.forEach(p => {
+        if (p.category_id && p.category_name) map.set(p.category_id, {id:p.category_id, name:p.category_name, parentId:p.category_parent_id||null})
+        if (p.category_parent_id && p.category_parent_name && !map.has(p.category_parent_id))
+          map.set(p.category_parent_id, {id:p.category_parent_id, name:p.category_parent_name, parentId:null})
+      })
+      setCats([...map.values()])
+    }).catch(e=>setErr(e.message)).finally(()=>setLoad(false))
+  }, [customer])
+
+  useEffect(() => { if (srchOpen && searchRef.current) searchRef.current.focus() }, [srchOpen])
+
+  const doLogin = c => { setCust(c); localStorage.setItem('sf_cust',JSON.stringify(c)); setLoginOpen(false) }
+  const logout  = () => { setCust(null); localStorage.removeItem('sf_cust') }
+
+  // Top ID'larni yuklangan mahsulot obyektlariga bog'laymiz (rank tartibi saqlanadi)
+  const topProducts = useMemo(() => {
+    if (!topIds.length || !products.length) return []
+    const byId = new Map(products.map(p => [p.id, p]))
+    return topIds.map(id => byId.get(id)).filter(Boolean)
+  }, [topIds, products])
+
+  const topCats = useMemo(()=>cats.filter(c=>!c.parentId), [cats])
+  const subCats = useMemo(()=>selTop==null?[]:cats.filter(c=>c.parentId===selTop), [cats, selTop])
+  // "Barchasi" olib tashlanganligi sababli, hech qaysi bo'lim scroll orqali
+  // aniqlanmagan bo'lsa (masalan sahifa boshida) birinchi kategoriya yoritiladi
+  const displayActiveCat = activeCat || (topCats[0] ? String(topCats[0].id) : null)
+
+  const filtered = useMemo(() => {
+    let l = products
+    if (selSub)      l = l.filter(p => p.category_id === selSub)
+    else if (selTop) l = l.filter(p => p.category_id === selTop || p.category_parent_id === selTop)
+    if (search)      l = l.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+    return l
+  }, [products, selTop, selSub, search])
+
+  // "Barchasi" ko'rinishida mahsulotlarni top-kategoriya bo'yicha bo'limlarga guruhlash
+  // (scroll qilganda cat-bar'da tegishli kategoriya avtomatik yoritiladi)
+  const groupedSections = useMemo(() => {
+    if (selTop !== null || search || topCats.length === 0) return null
+    const byCat = new Map(topCats.map(c => [c.id, []]))
+    filtered.forEach(p => {
+      const topId = p.category_parent_id || p.category_id
+      if (byCat.has(topId)) byCat.get(topId).push(p)
+    })
+    return topCats.map(c => ({ cat: c, items: byCat.get(c.id) || [] })).filter(g => g.items.length > 0)
+  }, [filtered, topCats, selTop, search])
+
+  useEffect(() => {
+    if (!groupedSections || groupedSections.length === 0) return
+    const els = groupedSections.map(g => sectionRefs.current[g.cat.id]).filter(Boolean)
+    if (!els.length) return
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) setActiveCat(entry.target.dataset.catId) })
+    }, { rootMargin: '-160px 0px -70% 0px', threshold: 0 })
+    els.forEach(el => obs.observe(el))
+    return () => obs.disconnect()
+  }, [groupedSections])
+
+  useEffect(() => {
+    if (!scrollToCatId) return
+    const el = sectionRefs.current[scrollToCatId]
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setScrollToCatId(null)
+  }, [scrollToCatId, groupedSections])
+
+  const goToCat = (id) => {
+    if (selTop !== null) { setSelTop(null); setSelSub(null) }
+    setActiveCat(String(id))
+    setScrollToCatId(id)
+  }
+
+  const total = cart.reduce((s,it)=>s+it.price*it.qty, 0)
+  const count = cart.reduce((s,it)=>s+it.qty, 0)
+
+  function _orbBounce(fromEl) {
+    if (fromEl && navCartRef.current) {
+      magicOrb(fromEl, navCartRef.current)
+      setTimeout(() => {
+        navCartRef.current?.classList.remove('nav-bounce')
+        void navCartRef.current?.offsetWidth
+        navCartRef.current?.classList.add('nav-bounce')
+        setTimeout(() => navCartRef.current?.classList.remove('nav-bounce'), 550)
+      }, 620)
+    }
+    if (navigator?.vibrate) navigator.vibrate(20)
+  }
+
+  function addToCart(p, unit, fromEl, qty=1) {
+    const key  = p.id+'_'+(unit?.unit_id??'base')
+    const mult = unit?.multiplier || 1
+    // Og'irlik (kg) tovarda qoldiq kasr bo'lishi mumkin — floor qilmaymiz
+    const weight = isWeightUnit(unit?.unit_name)
+    const max  = p.stock_type==='tracked' ? (weight ? p.stock/mult : Math.floor(p.stock/mult)) : Infinity
+    if (max <= 0) return
+    setCart(c => {
+      const ex = c.find(x=>x.key===key)
+      if (ex) { if(ex.qty>=max) return c; return c.map(x=>x.key===key?{...x,qty:Math.min(x.qty+qty,max)}:x) }
+      return [...c, {key,product_id:p.id,unit_id:unit?.unit_id,variant_id:null,variant_name:'',unit_name:unit?.unit_name||'dona',weight,name:p.name,price:unit?.price,currency:unit?.currency||'',cur_price:unit?.cur_price,qty:Math.min(qty,max),maxQty:max,image:p.image}]
+    })
+    _orbBounce(fromEl)
+  }
+
+  // Telefon nusxasi (IMEI) — har nusxa BITTA dona va o'z qatori.
+  // Bir xil modelning turli IMEI'lari birlashib ketmasligi uchun kalitga
+  // nusxa id'si kiradi.
+  function addSerialToCart(p, unit, fromEl) {
+    const key = `${p.id}_s${unit.id}`
+    setCart(c => {
+      if (c.find(x => x.key === key)) return c    // bitta telefon — bitta dona
+      return [...c, {
+        key, product_id: p.id, serial_id: unit.id,
+        unit_id: null, variant_id: null, variant_name: '',
+        unit_name: 'dona', name: p.name,
+        imei: unit.imei_masked,
+        price: unit.price, currency: unit.currency || '', cur_price: unit.cur_price,
+        qty: 1, maxQty: 1, image: p.image,
+      }]
+    })
+    _orbBounce(fromEl)
+  }
+
+  // Telefon "son bilan" (grouped) — spec+narx bucketdan N dona. IMEI'siz:
+  // buyurtma tushganda tizim o'sha bucketdan aynan N nusxani band qiladi.
+  function addBucketToCart(p, b, qty, fromEl) {
+    const key = `${p.id}_b${b.key}`
+    const max = b.count || 1
+    const add = Math.min(qty, max)
+    if (add <= 0) return
+    const specLabel = [b.storage, b.color_label, b.region].filter(Boolean).join(' · ')
+    setCart(c => {
+      const ex = c.find(x => x.key === key)
+      if (ex) { if (ex.qty >= max) return c; return c.map(x => x.key===key ? {...x, qty: Math.min(x.qty+add, max)} : x) }
+      return [...c, {
+        key, product_id: p.id,
+        base_price: b.base_price, currency: b.currency || '',
+        storage: b.storage || '', color: b.color || '', region: b.region || '',
+        unit_id: null, variant_id: null, serial_id: null, variant_name: '',
+        unit_name: 'dona', name: p.name, spec_label: specLabel,
+        price: b.price, cur_price: b.cur_price,
+        qty: add, maxQty: max, image: p.image,
+      }]
+    })
+    _orbBounce(fromEl)
+  }
+
+  function addVariantToCart(p, variant, qty, fromEl) {
+    const key = `${p.id}_v${variant.id}`
+    const max = variant.stock != null ? Math.floor(variant.stock) : Infinity
+    if (max <= 0) return
+    setCart(c => {
+      const ex = c.find(x=>x.key===key)
+      if (ex) return c.map(x=>x.key===key?{...x,qty:Math.min(x.qty+qty,max)}:x)
+      return [...c, {key,product_id:p.id,unit_id:null,variant_id:variant.id,variant_name:variant.name,unit_name:'dona',name:p.name,price:variant.price,currency:variant.currency||'',cur_price:variant.cur_price,qty,maxQty:max===Infinity?9999:max,image:p.image}]
+    })
+    _orbBounce(fromEl)
+  }
+
+  const updQty = (key,q) => setCart(c=>{ const it=c.find(x=>x.key===key); if(!it)return c; const cap=it.maxQty?Math.min(q,it.maxQty):q; return cap<=0?c.filter(x=>x.key!==key):c.map(x=>x.key===key?{...x,qty:cap}:x) })
+  const remItem = key => setCart(c=>c.filter(x=>x.key!==key))
+
+  async function submitOrder(form) {
+    setSubbing(true)
+    try {
+      const body = {
+        ...form,
+        customer_code: customer?.customer_code,
+        items: cart.map(it => ({
+          product_id: it.product_id,
+          ...(it.variant_id ? {variant_id: it.variant_id} : {}),
+          ...(it.unit_id    ? {unit_id:    it.unit_id}    : {}),
+          ...(it.serial_id  ? {serial_id:  it.serial_id}  : {}),
+          // Telefon "son bilan" (grouped): IMEI'siz — bucket kimligi (spec+narx)
+          ...(it.base_price != null ? {
+            base_price: it.base_price, currency: it.currency || '',
+            storage: it.storage || '', color: it.color || '', region: it.region || '',
+          } : {}),
+          qty: it.qty,
+        }))
+      }
+      const order = await api('/storefront/orders/',{method:'POST',body:JSON.stringify(body)})
+      setCart([]); setChkOpen(false); setDone(order)
+    } catch(e) { alert(e.message) } finally { setSubbing(false) }
+  }
+
+  const catName = (selSub||selTop) ? cats.find(c=>c.id===(selSub||selTop))?.name : null
+
+  return html`<div>
+
+    <!-- ── Header ──────────────────────────────────────────── -->
+    <header className="site-header">
+      <div className="header-inner">
+
+        ${srchOpen
+          ? html`<div className="header-search fade-in" style=${{maxWidth:'none',flex:1}}>
+              <${ISearch} s=${16}/>
+              <input ref=${searchRef} value=${search} onInput=${e=>setSearch(e.target.value)}
+                placeholder="Mahsulot qidirish..." style=${{flex:1,border:'none',background:'transparent',fontSize:14,color:'#111'}}/>
+            </div>
+            <button className="login-btn" onClick=${()=>{setSrchOpen(false);setSearch('')}}>Bekor</button>`
+
+          : html`<${React.Fragment}>
+              <div className="header-logo">
+                <img src="icon.png" alt="Dubai Express Mobile"/>
+                <b className="brand-txt">Dubai <span>Express</span> <small>Mobile</small></b>
+              </div>
+
+              <div className="header-search">
+                <${ISearch} s=${16}/>
+                <input value=${search} onInput=${e=>setSearch(e.target.value)} placeholder="Mahsulot qidirish..."/>
+              </div>
+
+              <div className="header-actions">
+                <button className="icon-btn mobile-search-trigger" onClick=${()=>setSrchOpen(true)} title="Qidirish">
+                  <${ISearch} s=${18}/>
+                </button>
+                <button className="icon-btn" onClick=${()=>setCartOpen(true)} title="Savat">
+                  <${ICart} s=${18}/>
+                  ${count>0 && html`<span className="badge">${count>9?'9+':count}</span>`}
+                </button>
+                ${customer
+                  ? html`<button className="avatar-btn" onClick=${()=>setPortal(true)}>
+                      ${customer.name.charAt(0).toUpperCase()}
+                    </button>`
+                  : html`<button className="login-btn" onClick=${()=>setLoginOpen(true)}>
+                      Kirish
+                    </button>`}
+              </div>
+            </${React.Fragment}>`}
+      </div>
+    </header>
+
+    <!-- ── Banner carousel ──────────────────────────────────── -->
+    <${BannerCarousel} banners=${banners}/>
+
+    <!-- ── Category bar (top) ──────────────────────────────── -->
+    <div ref=${catSentinelRef}></div>
+    ${topCats.length > 0 && html`
+      <nav className=${'cat-bar'+(catStuck?' cat-bar-stuck':'')}>
+        <div className="cat-bar-inner">
+          ${topCats.map(c => html`
+            <button key=${c.id} ref=${el=>{ if(el) chipRefs.current[c.id]=el }}
+              className=${'cat-chip'+((selTop===c.id||(selTop===null&&displayActiveCat===String(c.id))||(subDropdown&&subDropdown.catId===c.id))?' active':'')} onClick=${()=>goToCat(c.id)}>
+              ${catImgs[c.id] && html`<img className="cat-chip-thumb" src=${media(catImgs[c.id])} alt=""/>`}
+              ${c.name}
+              ${cats.some(sc=>sc.parentId===c.id) && html`<span className=${'cat-chip-arrow'+(subDropdown&&subDropdown.catId===c.id?' open':'')}
+                onClick=${e=>{e.stopPropagation();toggleSubDropdown(c.id, chipRefs.current[c.id])}}><${IChevronDown} s=${11}/></span>`}
+            </button>`)}
+        </div>
+      </nav>`}
+
+    <!-- ── Sub-category dropdown (chip strelkasi bosilganda) ── -->
+    ${subDropdown && html`
+      <${React.Fragment}>
+        <div className="cat-subdrop-overlay" onClick=${()=>setSubDropdown(null)}></div>
+        <div className="cat-subdrop" style=${{top:subDropdown.top+'px', left:subDropdown.left+'px'}}>
+          ${cats.filter(sc=>sc.parentId===subDropdown.catId).map(sub => html`
+            <button key=${sub.id} className="cat-subdrop-item" onClick=${()=>pickSubFromDropdown(subDropdown.catId, sub.id)}>
+              ${catImgs[sub.id] && html`<img className="cat-subdrop-thumb" src=${media(catImgs[sub.id])} alt=""/>`}
+              <span>${sub.name}</span>
+            </button>`)}
+        </div>
+      </${React.Fragment}>`}
+
+    <!-- ── Sub-category bar (tanlangan top'da sub bo'lsa) ───── -->
+    ${subCats.length > 0 && html`
+      <nav className="cat-bar cat-bar-sub">
+        <div className="cat-bar-inner">
+          <button className=${'cat-chip cat-chip-sub'+(selSub===null?' active':'')} onClick=${()=>setSelSub(null)}>
+            Barchasi
+          </button>
+          ${subCats.map(c => html`
+            <button key=${c.id} className=${'cat-chip cat-chip-sub'+(selSub===c.id?' active':'')} onClick=${()=>setSelSub(c.id)}>
+              ${c.name}
+            </button>`)}
+        </div>
+      </nav>`}
+
+    <!-- ── Page body ───────────────────────────────────────── -->
+    <main className="page-body">
+      <h1 className="page-title" ref=${pageTitleRef}>
+        ${catName || 'Katalog'}
+        ${!loading && html`<span>${filtered.length} ta mahsulot</span>`}
+      </h1>
+
+      <!-- Top tovarlar (tavsiya) — faqat bosh sahifada (filtr/qidiruvsiz) -->
+      ${!loading && !error && !search && selTop==null && selSub==null && topProducts.length>0 && html`
+        <div className="top-rail-wrap">
+          <div className="top-rail-head">
+            <h2>🔥 Top tovarlar</h2>
+            <span className="top-rail-badge">Eng ko'p sotilgan</span>
+          </div>
+          <div className="top-rail">
+            ${topProducts.map(p => html`
+              <div className="top-rail-item" key=${p.id}>
+                <${ProductItem} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages} onDetail=${setDetail}/>
+              </div>`)}
+          </div>
+        </div>`}
+
+      <!-- States -->
+      ${loading && html`<${Skeleton}/>`}
+      ${error   && html`<div className="product-grid"><div className="state-center">
+        <div className="state-emoji">😕</div>
+        <div className="state-text">Xatolik yuz berdi: ${error}</div>
+      </div></div>`}
+      ${!loading && !error && filtered.length===0 && html`<div className="product-grid"><div className="state-center">
+        <div className="state-emoji">🔍</div>
+        <div className="state-text">Mahsulot topilmadi</div>
+      </div></div>`}
+
+      <!-- Grid -->
+      ${!loading && !error && filtered.length>0 && groupedSections && html`
+        <div className="cat-sections">
+          ${groupedSections.map(g => html`
+            <section key=${g.cat.id} id=${'cat-sec-'+g.cat.id} data-cat-id=${g.cat.id} className="cat-section"
+              ref=${el => { if (el) sectionRefs.current[g.cat.id] = el }}>
+              <h2 className="cat-section-title">${g.cat.name}</h2>
+              <div className="product-grid">
+                ${g.items.map(p => html`
+                  <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
+                    onDetail=${setDetail}/>`)}
+              </div>
+            </section>`)}
+        </div>`}
+      ${!loading && !error && filtered.length>0 && !groupedSections && html`
+        <div className="product-grid">
+          ${filtered.map(p => html`
+            <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
+              onDetail=${setDetail}/>`)}
+        </div>`}
+    </main>
+
+    <!-- ── Modals ──────────────────────────────────────────── -->
+    <${CartSheet}
+      open=${cartOpen} onClose=${()=>setCartOpen(false)}
+      items=${cart} setQty=${updQty} remove=${remItem}
+      total=${total} onCheckout=${()=>setChkOpen(true)}/>
+
+    <${Checkout}
+      open=${chkOpen} onClose=${()=>setChkOpen(false)}
+      total=${total} totalStr=${groupTotal(cart)} onSubmit=${submitOrder} submitting=${subbing} customer=${customer}/>
+
+    <${Login} open=${loginOpen} onClose=${()=>setLoginOpen(false)} onLogin=${doLogin}/>
+
+    <${CustomerPortal}
+      open=${portalOpen} onClose=${()=>setPortal(false)}
+      customer=${customer} onLogout=${logout}/>
+
+    ${done && html`<${Success} order=${done} onClose=${()=>setDone(null)}/>`}
+
+    <!-- ── Product Detail ───────────────────── -->
+    ${detailProd && html`<${ProductDetail}
+      product=${detailProd}
+      onClose=${()=>setDetail(null)}
+      onAdd=${addToCart}
+      onAddVariant=${addVariantToCart}
+      onAddSerial=${addSerialToCart}
+      onAddBucket=${addBucketToCart}
+      cart=${cart}/>`}
+
+    <!-- ── Category Drawer ───────────────────── -->
+    <${CategoryDrawer}
+      open=${drawerOpen} onClose=${()=>setDrawer(false)}
+      cats=${cats} selTop=${selTop} selSub=${selSub} catImgs=${catImgs}
+      onSelect=${(top,sub)=>{setSelTop(top);setSelSub(sub);setNavActive('home')}}/>
+
+    <!-- ── Bottom Nav ────────────────────────── -->
+    <${BottomNav}
+      active=${navActive}
+      count=${count}
+      cartIconRef=${navCartRef}
+      onHome=${()=>{setSelTop(null);setSelSub(null);setActiveCat(null);setSearch('');setSrchOpen(false);setNavActive('home');window.scrollTo({top:0,behavior:'smooth'})}}
+      onSearch=${()=>{setSrchOpen(s=>!s);setNavActive('search')}}
+      onCart=${()=>{setCartOpen(true);setNavActive('cart');setTimeout(()=>setNavActive('home'),300)}}
+      onDrawer=${()=>{setDrawer(d=>!d);setNavActive('catalog')}}/>
+  </div>`
+}
+
+// Mobile search button — hide on desktop, show on mobile
+const style = document.createElement('style')
+style.textContent = '.mobile-search-trigger{display:none!important}@media(max-width:640px){.mobile-search-trigger{display:flex!important}.header-search{display:none!important}}'
+document.head.appendChild(style)
+
+createRoot(document.getElementById('root')).render(html`<${App}/>`)
+</script>
+</body>
+</html>
