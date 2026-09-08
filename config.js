@@ -3,6 +3,6 @@
 // Kalitni ERP SuperAdmin panelidan olasiz (tashkilot → Online Store).
 window.STORE_CONFIG = {
   // LOKAL TEST — mahalliy backend. Deployda: 'https://api.dukonline.uz/api'
-  API_URL: 'http://localhost:8000/api',                 // ERP Storefront API manzili
-  STOREFRONT_KEY: 'sk_live_usdtestca3e8c_be2023d3',     // Dubai Express Mobile (USD Test Telefon)
+  API_URL: 'https://api.dukonline.uz/api',                 // ERP Storefront API manzili
+  STOREFRONT_KEY: 'sk_live_ee2b1ea324_51687cbf',     // Dubai Express Mobile (USD Test Telefon)
 }
