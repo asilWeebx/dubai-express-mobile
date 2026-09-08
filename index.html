@@ -1212,16 +1212,21 @@ const isOutOfStock = p => (p.has_variants && p.variants?.length)
   ? !p.in_stock
   : (p.stock_type === 'tracked' && (p.stock ?? 0) <= 0)
 
-const som   = n => { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
-// Narxni O'Z valyutasida: USD → "$50", aks holda so'm.
+// Org bazaviy valyutasi — /storefront/info/ dan o'rnatiladi ('USD' yoki 'UZS').
+// USD org bo'lsa bo'sh (bazaviy) valyutali narxlar $ da chiqadi, so'm emas.
+let BASE_CUR = 'UZS'
+// Narxni O'Z valyutasida: USD → "$50", so'm → "50 000 so'm". Bo'sh valyuta =
+// org bazaviy valyutasi (BASE_CUR).
 const money = (n, cur) => {
-  if (!cur || cur === '' || cur === 'UZS') return som(n)
+  const c = (!cur || cur === '') ? BASE_CUR : cur
+  if (c === 'UZS') { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
   const v = Math.round((+n||0)*100)/100
   let i, d
   if (Number.isInteger(v)) { i = v.toString(); d = '' } else { [i, d] = v.toFixed(2).split('.') }
   i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-  return (cur === 'USD' ? '$' : cur + ' ') + i + (d ? '.' + d : '')
+  return (c === 'USD' ? '$' : c + ' ') + i + (d ? '.' + d : '')
 }
+const som   = n => money(n, BASE_CUR)
 // Savat jami — valyuta bo'yicha guruhlab ("$52  +  300 000 so'm")
 const groupTotal = (items) => {
   const t = {}
@@ -2330,7 +2335,7 @@ function App() {
     return () => obs.disconnect()
   }, [cats])
 
-  useEffect(() => { api('/storefront/info/').then(setInfo).catch(()=>{}) }, [])
+  useEffect(() => { api('/storefront/info/').then(d => { BASE_CUR = (d && d.currency === '$') ? 'USD' : 'UZS'; setInfo(d) }).catch(()=>{}) }, [])
 
   // Eng ko'p sotilgan tovarlar (tavsiya bo'limi) — faqat ID'lar, yuklangan
   // mahsulotlar bilan solishtiriladi (topProducts)
