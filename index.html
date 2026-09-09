@@ -1280,7 +1280,12 @@ const isOutOfStock = p => (p.has_variants && p.variants?.length)
   ? !p.in_stock
   : (p.stock_type === 'tracked' && (p.stock ?? 0) <= 0)
 
-const som   = n => { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
+// Org bazaviy valyutasi — /storefront/info/ dan o'rnatiladi ('USD' yoki 'UZS').
+// Bo'sh (bazaviy) valyutali summalar shu valyutada ko'rsatiladi: USD org → "$",
+// aks holda "so'm". Portal (qarz/balans/jami) ham shu orqali chiqadi.
+let BASE_CUR = 'UZS'
+// Xom UZS formatlagich — money ichida ishlatiladi (som → money → som rekursiyani uzadi).
+const somRaw = n => { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
 // API do'kon valyutasini belgi (masalan, "$"), mahsulot valyutasini esa kod
 // (masalan, "USD") ko'rinishida qaytarishi mumkin. Ikkalasini bir xil qilamiz.
 const normalizeCurrency = cur => {
@@ -1290,18 +1295,21 @@ const normalizeCurrency = cur => {
   return c
 }
 const resolveCurrency = (productCurrency, storeCurrency) =>
-  normalizeCurrency(productCurrency) || normalizeCurrency(storeCurrency) || 'UZS'
+  normalizeCurrency(productCurrency) || normalizeCurrency(storeCurrency) || BASE_CUR
 
 // Narxni valyutasi bilan ko'rsatish: USD → "$50", UZS → "50 000 so'm".
 const money = (n, cur) => {
-  cur = normalizeCurrency(cur)
-  if (!cur || cur === 'UZS') return som(n)
+  cur = normalizeCurrency(cur) || BASE_CUR   // bo'sh valyuta → org bazaviy valyutasi
+  if (cur === 'UZS') return somRaw(n)
   const v = Math.round((+n||0)*100)/100
   let i, d
   if (Number.isInteger(v)) { i = v.toString(); d = '' } else { [i, d] = v.toFixed(2).split('.') }
   i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   return (cur === 'USD' ? '$' : cur + ' ') + i + (d ? '.' + d : '')
 }
+// Bazaviy valyutadagi summa yorlig'i bilan (USD org → "$", aks holda "so'm").
+// Portal/hisob summalari (qarz, balans, jami xarid, sotuvlar) shu orqali chiqadi.
+const som = n => money(n, BASE_CUR)
 // Savat jami — valyuta bo'yicha guruhlab ("$52  +  300 000 so'm")
 const groupTotal = (items) => {
   const t = {}
@@ -2371,11 +2379,18 @@ function CustomerPortal({ open, onClose, customer, onLogout }) {
                         </div>
                         ${expanded && html`
                           <div style=${{borderTop:'1px solid #f0f0f0',padding:'10px 16px',background:'#fafafa',display:'flex',flexDirection:'column',gap:6}}>
-                            ${s.items && s.items.map((it,j)=>html`
-                              <div key=${j} style=${{display:'flex',justifyContent:'space-between',fontSize:12}}>
-                                <span style=${{color:'#555'}}>${it.name||it.product_name||''}</span>
-                                <span style=${{color:'#111',fontWeight:700}}>${+(it.qty||it.quantity||0)} ${it.unit||it.unit_name||''} × ${som(+(it.price||0))}</span>
-                              </div>`)}
+                            ${s.items && s.items.map((it,j)=>{
+                              const sr = it.serial
+                              const spec = sr ? [sr.storage, sr.color, sr.region, (sr.battery!=null?sr.battery+'%':'')].filter(Boolean).join(' · ') : ''
+                              return html`
+                              <div key=${j} style=${{display:'flex',justifyContent:'space-between',fontSize:12,gap:8}}>
+                                <div style=${{minWidth:0}}>
+                                  <div style=${{color:'#555'}}>${it.name||it.product_name||''}</div>
+                                  ${sr && html`<div style=${{fontSize:10.5,color:'#94a3b8',fontFamily:'ui-monospace,Menlo,monospace',marginTop:2}}>📱 IMEI ${sr.imei}${spec?' · '+spec:''}</div>`}
+                                </div>
+                                <span style=${{color:'#111',fontWeight:700,whiteSpace:'nowrap'}}>${+(it.qty||it.quantity||0)} ${it.unit||it.unit_name||''} × ${som(+(it.price||0))}</span>
+                              </div>`
+                            })}
                             <div style=${{borderTop:'1px dashed #e2e8f0',marginTop:4,paddingTop:6,display:'flex',flexDirection:'column',gap:4}}>
                               <div style=${{display:'flex',justifyContent:'space-between',fontSize:11}}><span style=${{color:'#999'}}>To'lov usuli</span><span style=${{color:'#111',fontWeight:700}}>${pmLabel(s.payment_method)}</span></div>
                               ${breakdown.length>1 && breakdown.map((b,k)=>html`
@@ -2556,7 +2571,7 @@ function App() {
     return () => obs.disconnect()
   }, [cats])
 
-  useEffect(() => { api('/storefront/info/').then(setInfo).catch(()=>{}) }, [])
+  useEffect(() => { api('/storefront/info/').then(d => { BASE_CUR = normalizeCurrency(d?.currency) || 'UZS'; setInfo(d) }).catch(()=>{}) }, [])
 
   // Eng ko'p sotilgan tovarlar (tavsiya bo'limi) — faqat ID'lar, yuklangan
   // mahsulotlar bilan solishtiriladi (topProducts)
