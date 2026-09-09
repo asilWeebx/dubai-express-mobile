@@ -1212,21 +1212,28 @@ const isOutOfStock = p => (p.has_variants && p.variants?.length)
   ? !p.in_stock
   : (p.stock_type === 'tracked' && (p.stock ?? 0) <= 0)
 
-// Org bazaviy valyutasi — /storefront/info/ dan o'rnatiladi ('USD' yoki 'UZS').
-// USD org bo'lsa bo'sh (bazaviy) valyutali narxlar $ da chiqadi, so'm emas.
-let BASE_CUR = 'UZS'
-// Narxni O'Z valyutasida: USD → "$50", so'm → "50 000 so'm". Bo'sh valyuta =
-// org bazaviy valyutasi (BASE_CUR).
+const som   = n => { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
+// API do'kon valyutasini belgi (masalan, "$"), mahsulot valyutasini esa kod
+// (masalan, "USD") ko'rinishida qaytarishi mumkin. Ikkalasini bir xil qilamiz.
+const normalizeCurrency = cur => {
+  const c = String(cur || '').trim().toUpperCase()
+  if (c === '$' || c === 'US$') return 'USD'
+  if (c === "SO'M" || c === 'SUM') return 'UZS'
+  return c
+}
+const resolveCurrency = (productCurrency, storeCurrency) =>
+  normalizeCurrency(productCurrency) || normalizeCurrency(storeCurrency) || 'UZS'
+
+// Narxni valyutasi bilan ko'rsatish: USD → "$50", UZS → "50 000 so'm".
 const money = (n, cur) => {
-  const c = (!cur || cur === '') ? BASE_CUR : cur
-  if (c === 'UZS') { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
+  cur = normalizeCurrency(cur)
+  if (!cur || cur === 'UZS') return som(n)
   const v = Math.round((+n||0)*100)/100
   let i, d
   if (Number.isInteger(v)) { i = v.toString(); d = '' } else { [i, d] = v.toFixed(2).split('.') }
   i = i.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-  return (c === 'USD' ? '$' : c + ' ') + i + (d ? '.' + d : '')
+  return (cur === 'USD' ? '$' : cur + ' ') + i + (d ? '.' + d : '')
 }
-const som   = n => money(n, BASE_CUR)
 // Savat jami — valyuta bo'yicha guruhlab ("$52  +  300 000 so'm")
 const groupTotal = (items) => {
   const t = {}
@@ -1328,7 +1335,7 @@ function magicOrb(fromEl, toEl) {
 }
 
 // ── ProductDetail ─────────────────────────────────────────────────────
-function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProducts, setCartQty, showImages, onSelect }) {
+function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProducts, setCartQty, showImages, onSelect, storeCurrency }) {
   const p = product
   const hasVariants = !!(p.has_variants && p.variants?.length)
   const similar = useMemo(() => similarProducts(p, allProducts||[], 10), [p, allProducts])
@@ -1352,7 +1359,7 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProduct
   const displayPrice    = hasVariants ? (selVariant?.price ?? 0) : (unit?.price ?? 0)
   const displayOrigPrice = hasVariants ? (selVariant?.original_price ?? null) : (unit?.original_price ?? null)
   // Valyuta: USD tovar $ da, aks holda so'm
-  const dispCur = hasVariants ? (selVariant?.currency ?? '') : (unit?.currency ?? '')
+  const dispCur = resolveCurrency(hasVariants ? selVariant?.currency : unit?.currency, storeCurrency)
   const dispVal = hasVariants ? (selVariant?.cur_price ?? displayPrice) : (unit?.cur_price ?? displayPrice)
   const dispOrigVal = hasVariants ? (selVariant?.cur_original_price ?? null) : (unit?.cur_original_price ?? null)
   const mult   = unit?.multiplier || 1
@@ -1487,7 +1494,7 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProduct
           <div className="detail-similar-rail">
             ${similar.map(sp => html`
               <div className="detail-similar-item" key=${sp.id}>
-                <${ProductItem} p=${sp} onAdd=${onAdd} setQty=${setCartQty} cart=${cart} showImages=${showImages} onDetail=${onSelect}/>
+                <${ProductItem} p=${sp} onAdd=${onAdd} setQty=${setCartQty} cart=${cart} showImages=${showImages} onDetail=${onSelect} storeCurrency=${storeCurrency}/>
               </div>`)}
           </div>
         </div>`}
@@ -1623,7 +1630,7 @@ function QuantityInput({ value, max=Infinity, className, onCommit, allowDecimal=
 }
 
 // ── ProductItem ────────────────────────────────────────────────────────
-function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
+function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail, storeCurrency }) {
   const hasVariants = !!(p.has_variants && p.variants?.length)
 
   const _firstAvail = !hasVariants && p.stock_type === 'tracked'
@@ -1650,7 +1657,7 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
     ? (p.variants[0]?.original_price ?? null)
     : (unit?.original_price ?? null)
   // Valyuta: USD tovar $ da, aks holda so'm
-  const dispCur = hasVariants ? (p.variants[0]?.currency ?? '') : (unit?.currency ?? '')
+  const dispCur = resolveCurrency(hasVariants ? p.variants[0]?.currency : unit?.currency, storeCurrency)
   const dispVal = hasVariants ? (p.variants[0]?.cur_price ?? displayPrice) : (unit?.cur_price ?? displayPrice)
   const dispOrigVal = hasVariants ? (p.variants[0]?.cur_original_price ?? null) : (unit?.cur_original_price ?? null)
 
@@ -2282,6 +2289,7 @@ function App() {
   const [drawerOpen,  setDrawer]    = useState(false)
   const [navActive,   setNavActive] = useState('home')
   const [detailProd,  setDetail]    = useState(null)
+  const storeCurrency = normalizeCurrency(info?.currency)
 
   const searchRef  = useRef(null)
   const navCartRef = useRef(null)
@@ -2335,7 +2343,7 @@ function App() {
     return () => obs.disconnect()
   }, [cats])
 
-  useEffect(() => { api('/storefront/info/').then(d => { BASE_CUR = (d && d.currency === '$') ? 'USD' : 'UZS'; setInfo(d) }).catch(()=>{}) }, [])
+  useEffect(() => { api('/storefront/info/').then(setInfo).catch(()=>{}) }, [])
 
   // Eng ko'p sotilgan tovarlar (tavsiya bo'limi) — faqat ID'lar, yuklangan
   // mahsulotlar bilan solishtiriladi (topProducts)
@@ -2465,7 +2473,7 @@ function App() {
     setCart(c => {
       const ex = c.find(x=>x.key===key)
       if (ex) { if(ex.qty>=max) return c; return c.map(x=>x.key===key?{...x,qty:Math.min(x.qty+qty,max)}:x) }
-      return [...c, {key,product_id:p.id,unit_id:unit?.unit_id,variant_id:null,variant_name:'',unit_name:unit?.unit_name||'dona',weight,name:p.name,price:unit?.price,currency:unit?.currency||'',cur_price:unit?.cur_price,qty:Math.min(qty,max),maxQty:max,image:p.image}]
+      return [...c, {key,product_id:p.id,unit_id:unit?.unit_id,variant_id:null,variant_name:'',unit_name:unit?.unit_name||'dona',weight,name:p.name,price:unit?.price,currency:resolveCurrency(unit?.currency, storeCurrency),cur_price:unit?.cur_price,qty:Math.min(qty,max),maxQty:max,image:p.image}]
     })
     _orbBounce(fromEl)
   }
@@ -2477,7 +2485,7 @@ function App() {
     setCart(c => {
       const ex = c.find(x=>x.key===key)
       if (ex) return c.map(x=>x.key===key?{...x,qty:Math.min(x.qty+qty,max)}:x)
-      return [...c, {key,product_id:p.id,unit_id:null,variant_id:variant.id,variant_name:variant.name,unit_name:'dona',name:p.name,price:variant.price,currency:variant.currency||'',cur_price:variant.cur_price,qty,maxQty:max===Infinity?9999:max,image:p.image}]
+      return [...c, {key,product_id:p.id,unit_id:null,variant_id:variant.id,variant_name:variant.name,unit_name:'dona',name:p.name,price:variant.price,currency:resolveCurrency(variant.currency, storeCurrency),cur_price:variant.cur_price,qty,maxQty:max===Infinity?9999:max,image:p.image}]
     })
     _orbBounce(fromEl)
   }
@@ -2617,7 +2625,7 @@ function App() {
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="#fff" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                   TOP
                 </div>
-                <${ProductItem} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages} onDetail=${setDetail}/>
+                <${ProductItem} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages} onDetail=${setDetail} storeCurrency=${storeCurrency}/>
               </div>`)}
           </div>
         </div>`}
@@ -2642,7 +2650,7 @@ function App() {
           <div className="product-grid">
             ${searchFallback.map(p => html`
               <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
-                onDetail=${setDetail}/>`)}
+                onDetail=${setDetail} storeCurrency=${storeCurrency}/>`)}
           </div>
         </div>`}
 
@@ -2656,7 +2664,7 @@ function App() {
               <div className="product-grid">
                 ${g.items.map(p => html`
                   <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
-                    onDetail=${setDetail}/>`)}
+                    onDetail=${setDetail} storeCurrency=${storeCurrency}/>`)}
               </div>
             </section>`)}
         </div>`}
@@ -2664,7 +2672,7 @@ function App() {
         <div className="product-grid">
           ${filtered.map(p => html`
             <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
-              onDetail=${setDetail}/>`)}
+              onDetail=${setDetail} storeCurrency=${storeCurrency}/>`)}
         </div>`}
     </main>
 
@@ -2696,7 +2704,8 @@ function App() {
       allProducts=${products}
       setCartQty=${updQty}
       showImages=${showImages}
-      onSelect=${setDetail}/>`}
+      onSelect=${setDetail}
+      storeCurrency=${storeCurrency}/>`}
 
     <!-- ── Category Drawer ───────────────────── -->
     <${CategoryDrawer}
