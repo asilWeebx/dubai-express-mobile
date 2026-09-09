@@ -1236,10 +1236,18 @@ const ACCENT = '#7a8b6f', AD = '#5d6e54'
 // Org bazaviy valyutasi — /storefront/info/ dan o'rnatiladi ('USD' yoki 'UZS').
 // USD org bo'lsa bo'sh (bazaviy) valyutali narxlar $ da chiqadi, so'm emas.
 let BASE_CUR = 'UZS'
+// API do'kon valyutasini belgi ("$"), mahsulotnikini esa kod ("USD") tarzida
+// qaytarishi mumkin — ikkalasini bir xil kodga keltiramiz.
+const normalizeCurrency = cur => {
+  const c = String(cur || '').trim().toUpperCase()
+  if (c === '$' || c === 'US$') return 'USD'
+  if (c === "SO'M" || c === 'SUM') return 'UZS'
+  return c
+}
 // Narxni O'Z valyutasida: USD → "$50", so'm → "50 000 so'm". Bo'sh valyuta =
 // org bazaviy valyutasi (BASE_CUR).
 const money = (n, cur) => {
-  const c = (!cur || cur === '') ? BASE_CUR : cur
+  const c = normalizeCurrency(cur) || BASE_CUR
   if (c === 'UZS') { const v = Math.round(+n||0); return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' so\'m' }
   const v = Math.round((+n||0)*100)/100
   let i, d
@@ -2407,7 +2415,7 @@ function App() {
     return () => obs.disconnect()
   }, [cats])
 
-  useEffect(() => { api('/storefront/info/').then(d => { BASE_CUR = (d && d.currency === '$') ? 'USD' : 'UZS'; setInfo(d) }).catch(()=>{}) }, [])
+  useEffect(() => { api('/storefront/info/').then(d => { BASE_CUR = normalizeCurrency(d && d.currency) || 'UZS'; setInfo(d) }).catch(()=>{}) }, [])
 
   // Eng ko'p sotilgan tovarlar (tavsiya bo'limi) — faqat ID'lar, yuklangan
   // mahsulotlar bilan solishtiriladi (topProducts)
