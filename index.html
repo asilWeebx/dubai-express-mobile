@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
   <title>Dubai Express Mobile</title>
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" href="data:,">
   <!-- Xarita (yetkazish joyini belgilash) — OpenStreetMap, kalitsiz -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -30,7 +30,7 @@
     input:focus, select:focus { outline: none; }
     button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
-    /* ── Dubai Express brand tokens ───────────────────────── */
+    /* ── Design tokens (soft, Tilda-like warm minimalism) ─── */
     :root {
       --bg: #f6f6f7;                /* existing page background */
       --bg-card: #ffffff;           /* card surface */
@@ -79,7 +79,7 @@
     /* ── Header ──────────────────────────── */
     .site-header {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(246,246,247,0.92);
+      background: rgba(250,247,242,0.88);
       backdrop-filter: blur(20px) saturate(180%);
       -webkit-backdrop-filter: blur(20px) saturate(180%);
       border-bottom: 1px solid var(--line-soft);
@@ -92,17 +92,13 @@
     }
     .header-logo {
       font-family: 'Montserrat', -apple-system, sans-serif;
-      font-size: 21px; font-weight: 800; color: var(--ink);
+      font-size: 22px; font-weight: 700; color: var(--ink);
       white-space: nowrap; letter-spacing: -0.02em; flex-shrink: 0;
-      display: flex; align-items: center; gap: 10px;
+      display: flex; align-items: center; gap: 8px;
     }
     .header-logo img { width: auto; height: 38px; display: block; }
     .header-logo .brand-txt { display: flex; align-items: baseline; gap: 5px; }
     .header-logo span { color: var(--sage); }
-    @media (max-width: 640px) {
-      .header-logo img { height: 34px; }
-      .header-logo .brand-txt { display: none; }
-    }
     .header-search {
       flex: 1; max-width: 440px;
       display: flex; align-items: center; gap: 10px;
@@ -169,19 +165,17 @@
 
     .cat-bar {
       position: sticky; top: 72px; z-index: 99;
+      animation: slideDown 0.4s ease-out;
       transition: background-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
                   box-shadow 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
-                  border-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
-                  margin-bottom 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
+                  border-color 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
     }
     .cat-bar-stuck {
-      background: rgba(246,246,247,0.95);
+      background: rgba(250,247,242,0.95);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 2px 12px rgba(20,20,20,0.05);
+      box-shadow: 0 2px 12px rgba(43,38,32,0.05);
       border-bottom: 1px solid var(--line-soft);
-      /* Offsets the compact row height so content below keeps its position. */
-      margin-bottom: 34px;
     }
     .cat-bar-inner {
       max-width: 1400px; margin: 0 auto; padding: 14px 28px;
@@ -209,7 +203,7 @@
     }
     .cat-chip.active {
       background: var(--ink); border-color: var(--ink); color: #fff;
-      box-shadow: 0 4px 14px rgba(20,20,20,0.18);
+      box-shadow: 0 4px 14px rgba(43,38,32,0.18);
     }
 
     /* sub-kategoriya qatori (top'ning ostida) */
@@ -218,7 +212,7 @@
     .cat-chip-sub { height: 36px; font-size: 12.5px; padding: 0 18px; font-weight: 500; }
     .cat-chip-sub.active {
       background: var(--sage); border-color: var(--sage); color: #fff;
-      box-shadow: 0 3px 10px rgba(212,7,7,0.3);
+      box-shadow: 0 3px 10px rgba(122,139,111,0.3);
     }
 
     /* ── Page body ───────────────────────── */
@@ -264,22 +258,13 @@
     /* ── Top tovarlar (tavsiya karusel) ──── */
     .top-rail-wrap { margin: 4px 0 32px; }
     .top-rail-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-    .top-rail-head h2 { font-size: 20px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.01em; }
-    .top-rail-badge { font-size: 12px; font-weight: 700; color: var(--sage-deep); background: var(--sage-tint); padding: 3px 11px; border-radius: 20px; white-space: nowrap; }
+    .top-rail-head h2 { font-size: 20px; font-weight: 800; color: #111; margin: 0; }
+    .top-rail-badge { font-size: 12px; font-weight: 700; color: #e8590c; background: #fff4e6; padding: 3px 11px; border-radius: 20px; white-space: nowrap; }
     .top-rail { display: flex; gap: 24px; overflow-x: auto; padding: 4px 2px 12px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
     .top-rail::-webkit-scrollbar { height: 6px; }
     .top-rail::-webkit-scrollbar-track { background: transparent; }
-    .top-rail::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-    .top-rail-item { position: relative; flex: 0 0 auto; width: 210px; scroll-snap-align: start; }
-    .top-rail-rank {
-      position: absolute; top: 10px; left: 10px; z-index: 2;
-      display: flex; align-items: center; gap: 4px;
-      background: var(--sage-deep); color: #fff;
-      font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
-      padding: 4px 8px 4px 6px; border-radius: 6px;
-      font-family: 'Montserrat', sans-serif;
-      pointer-events: none;
-    }
+    .top-rail::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 3px; }
+    .top-rail-item { flex: 0 0 auto; width: 210px; scroll-snap-align: start; }
     @media (max-width: 860px) { .top-rail { gap: 16px; } .top-rail-item { width: 170px; } }
     @media (max-width: 480px) { .top-rail-item { width: 150px; } .top-rail-head h2 { font-size: 18px; } }
 
@@ -318,7 +303,7 @@
     }
     .stock-out-overlay {
       position: absolute; inset: 0; border-radius: var(--radius);
-      background: rgba(246,246,247,0.78);
+      background: rgba(250,247,242,0.78);
       backdrop-filter: blur(2px);
       display: flex; align-items: center; justify-content: center;
     }
@@ -337,7 +322,7 @@
       min-width: 22px; height: 22px; border-radius: 11px;
       display: flex; align-items: center; justify-content: center;
       padding: 0 6px;
-      box-shadow: 0 2px 8px rgba(212,7,7,0.4);
+      box-shadow: 0 2px 8px rgba(122,139,111,0.4);
       font-family: 'Montserrat', sans-serif;
     }
     .product-name {
@@ -387,7 +372,7 @@
     @media (min-width: 641px) {
       .qty-wrap { flex: 0 0 auto; width: 68%; margin: 0 auto; }
     }
-    .qty-wrap:hover { border-color: var(--sage); box-shadow: 0 2px 10px rgba(212,7,7,.1); }
+    .qty-wrap:hover { border-color: var(--sage); box-shadow: 0 2px 10px rgba(122,139,111,.1); }
     @keyframes qtyWrapIn {
       0% { transform: scale(1.1); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
@@ -401,14 +386,11 @@
     .qty-btn:hover { background: var(--sage-tint); color: var(--sage-deep); }
     .qty-btn:active { background: var(--sage-tint); transform: scale(.88); }
     .qty-num {
-      width: 48px; height: 38px; text-align: center; font-size: 14px; font-weight: 600; color: var(--ink);
-      border: none; background: transparent; outline: none;
+      width: 32px; text-align: center; font-size: 14px; font-weight: 600; color: var(--ink);
+      border: none;
+      line-height: 38px;
       transition: transform .15s ease, color .15s ease;
-      -moz-appearance: textfield;
     }
-    .qty-num::-webkit-outer-spin-button,
-    .qty-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .qty-num:focus { background: var(--sage-tint); color: var(--sage-deep); }
     .qty-wrap:has(.qty-btn:active) .qty-num { animation: qtyPop .22s ease; }
     @keyframes qtyPop {
       0% { transform: scale(1); }
@@ -420,7 +402,7 @@
       background: var(--ink); color: #fff;
       font-size: 13px; font-weight: 600;
       letter-spacing: -0.01em;
-      box-shadow: 0 2px 8px rgba(20,20,20,0.15);
+      box-shadow: 0 2px 8px rgba(43,38,32,0.15);
       transition: background .2s ease, box-shadow .2s ease,
                   transform .22s cubic-bezier(.34,1.56,.64,1), border-radius .22s ease;
       white-space: nowrap;
@@ -429,7 +411,7 @@
     .add-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
     @media (hover: hover) {
       .add-btn:hover:not(.btn-added):not(:disabled) {
-        background: var(--sage); box-shadow: 0 4px 14px rgba(212,7,7,0.35);
+        background: var(--sage); box-shadow: 0 4px 14px rgba(122,139,111,0.35);
       }
       .add-btn:active:not(.btn-added):not(:disabled) {
         transform: scaleX(.85) scaleY(.92);
@@ -438,7 +420,7 @@
     }
     .add-btn.btn-added {
       background: var(--sage) !important; color: #fff !important;
-      box-shadow: 0 2px 10px rgba(212,7,7,0.4) !important;
+      box-shadow: 0 2px 10px rgba(122,139,111,0.4) !important;
       pointer-events: none;
     }
 
@@ -456,17 +438,13 @@
     }
     .state-emoji { font-size: 44px; margin-bottom: 16px; }
     .state-text  { font-size: 15px; color: var(--ink-soft); font-weight: 400; }
-    .fallback-label {
-      font-size: 12px; font-weight: 700; color: var(--ink-faint); text-transform: uppercase;
-      letter-spacing: .06em; text-align: center; margin: 0 0 24px;
-    }
 
     /* ── Overlay / Sheet ─────────────────── */
     .overlay-bg {
       position: fixed; inset: 0; z-index: 9100;
     }
     .overlay-dim {
-      position: absolute; inset: 0; background: rgba(20,20,20,0.4);
+      position: absolute; inset: 0; background: rgba(43,38,32,0.4);
       backdrop-filter: blur(4px);
     }
     .bottom-sheet {
@@ -474,7 +452,7 @@
       background: var(--bg); border-radius: 24px 24px 0 0;
       max-height: 90vh; display: flex; flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 -8px 40px rgba(20,20,20,0.15);
+      box-shadow: 0 -8px 40px rgba(43,38,32,0.15);
     }
     .sheet-handle {
       width: 40px; height: 4px; background: var(--line); border-radius: 2px;
@@ -535,11 +513,11 @@
     .primary-btn {
       width: 100%; height: 50px; border-radius: var(--radius-sm); border: none;
       background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
-      box-shadow: 0 2px 10px rgba(20,20,20,0.2);
+      box-shadow: 0 2px 10px rgba(43,38,32,0.2);
       transition: all .2s;
       letter-spacing: -0.01em;
     }
-    .primary-btn:hover { background: var(--sage); box-shadow: 0 4px 14px rgba(212,7,7,0.35); }
+    .primary-btn:hover { background: var(--sage); box-shadow: 0 4px 14px rgba(122,139,111,0.35); }
     .primary-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
     .dark-btn {
       width: 100%; height: 48px; border-radius: var(--radius-sm); border: none;
@@ -550,7 +528,7 @@
     .err-box {
       background: var(--clay-tint); color: var(--clay); border-radius: var(--radius-sm);
       padding: 12px 16px; font-size: 13px; font-weight: 500;
-      border: 1px solid rgba(212,7,7,0.25);
+      border: 1px solid rgba(201,123,92,0.25);
     }
     .total-row {
       display: flex; align-items: center; justify-content: space-between;
@@ -563,7 +541,7 @@
     .modal-center {
       position: fixed; inset: 0; z-index: 9200;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(20,20,20,0.5); backdrop-filter: blur(6px); padding: 20px;
+      background: rgba(43,38,32,0.5); backdrop-filter: blur(6px); padding: 20px;
     }
     .modal-card {
       background: var(--bg); border-radius: 24px; padding: 44px 32px;
@@ -583,7 +561,7 @@
       background: var(--bg); border-radius: 28px 28px 0 0;
       max-height: 88vh; display: flex; flex-direction: column;
       overflow: hidden; max-width: 560px; margin: 0 auto;
-      box-shadow: 0 -8px 40px rgba(20,20,20,0.15);
+      box-shadow: 0 -8px 40px rgba(43,38,32,0.15);
     }
     .portal-handle { width: 40px; height: 4px; background: var(--line); border-radius: 2px; margin: 14px auto 0; flex-shrink: 0; }
     .portal-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px 0; flex-shrink: 0; }
@@ -606,8 +584,8 @@
     .portal-profile-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
     .portal-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .portal-stat { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--line-soft); background: var(--bg-card); }
-    .portal-stat.debt { background: var(--clay-tint); border-color: rgba(212,7,7,0.2); }
-    .portal-stat.credit { background: var(--sage-tint); border-color: rgba(212,7,7,0.2); }
+    .portal-stat.debt { background: var(--clay-tint); border-color: rgba(201,123,92,0.2); }
+    .portal-stat.credit { background: var(--sage-tint); border-color: rgba(122,139,111,0.2); }
     .portal-stat-label { font-size: 10px; color: var(--ink-faint); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; }
     .portal-stat-val { font-size: 17px; font-weight: 700; color: var(--ink-soft); letter-spacing: -0.015em; }
     .portal-stat.debt .portal-stat-val { color: var(--clay); }
@@ -644,6 +622,8 @@
       .cat-bar-inner{ padding: 10px 16px; gap: 12px; }
       .cat-chip { height: 58px; padding: 10px 18px 10px 8px; font-size: 13px; gap: 10px; }
       .cat-chip-thumb { width: 44px; height: 44px; }
+      .cat-bar-stuck .cat-chip { height: 40px; padding: 6px 14px 6px 6px; font-size: 12px; gap: 6px; }
+      .cat-bar-stuck .cat-chip-thumb { width: 26px; height: 26px; }
       .cat-chip-sub { height: 32px; padding: 0 14px; font-size: 12px; }
       .product-name { font-size: 13px; }
       .product-price{ font-size: 15px; }
@@ -670,7 +650,7 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 8px 16px;
       z-index: 9000; gap: 4px;
-      box-shadow: 0 8px 32px rgba(20,20,20,0.12), 0 2px 8px rgba(20,20,20,0.06);
+      box-shadow: 0 8px 32px rgba(43,38,32,0.12), 0 2px 8px rgba(43,38,32,0.06);
     }
     .nav-btn {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -722,7 +702,7 @@
     /* ── Category Drawer ─────────────────────── */
     .drawer-overlay {
       position: fixed; inset: 0;
-      background: rgba(20,20,20,0.4); z-index: 9990;
+      background: rgba(43,38,32,0.4); z-index: 9990;
       opacity: 0; transition: opacity .3s ease;
       pointer-events: none;
       backdrop-filter: blur(4px);
@@ -731,18 +711,18 @@
     .cat-drawer {
       position: fixed; top: 0; right: 0;
       width: 86%; max-width: 380px; height: 100vh;
-      background: rgba(246,246,247,0.97);
+      background: rgba(250,247,242,0.97);
       backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
       z-index: 9995; display: flex; flex-direction: column;
-      box-shadow: -12px 0 45px rgba(20,20,20,0.15);
+      box-shadow: -12px 0 45px rgba(43,38,32,0.15);
       transform: translateX(100%); visibility: hidden;
       transition: transform .35s cubic-bezier(.4,0,.2,1), visibility .35s;
     }
     .cat-drawer.open { transform: translateX(0); visibility: visible; }
     .cat-drawer-head {
       padding: 32px 20px 16px;
-      background: rgba(246,246,247,0.85);
+      background: rgba(250,247,242,0.85);
       backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--line-soft);
     }
@@ -831,7 +811,7 @@
       position: fixed; z-index: 99999;
       width: 18px; height: 18px;
       background: var(--sage); border-radius: 50%;
-      box-shadow: 0 0 15px 5px rgba(212,7,7,0.6);
+      box-shadow: 0 0 15px 5px rgba(122,139,111,0.6);
       pointer-events: none;
       transition: top .6s cubic-bezier(.5,-.5,.2,1), left .6s cubic-bezier(.2,.8,.2,1),
                   transform .6s ease, opacity .6s ease;
@@ -844,17 +824,12 @@
     .cat-chip-thumb {
       width: 48px; height: 48px; border-radius: 10px; object-fit: cover;
       flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(20,20,20,0.08);
+      box-shadow: 0 2px 6px rgba(43,38,32,0.08);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
                   width 0.22s cubic-bezier(0.22, 0.61, 0.36, 1), height 0.22s cubic-bezier(0.22, 0.61, 0.36, 1);
     }
     .cat-bar-stuck .cat-chip-thumb {
       width: 28px; height: 28px; border-radius: 8px;
-    }
-    @media (max-width: 640px) {
-      .cat-bar-stuck { margin-bottom: 26px; }
-      .cat-bar-stuck .cat-chip { height: 40px; padding: 6px 14px 6px 6px; font-size: 12px; gap: 6px; }
-      .cat-bar-stuck .cat-chip-thumb { width: 26px; height: 26px; }
     }
     .cat-chip:hover .cat-chip-thumb {
       transform: scale(1.06);
@@ -867,7 +842,7 @@
       transition: color 0.3s ease, background-color 0.2s ease, transform 0.2s ease;
     }
     .cat-chip:hover .cat-chip-arrow, .cat-chip.active .cat-chip-arrow { color: var(--ink-soft); }
-    .cat-chip-arrow:hover { background: rgba(20,20,20,0.06); }
+    .cat-chip-arrow:hover { background: rgba(43,38,32,0.06); }
     .cat-chip-arrow.open { transform: rotate(180deg); color: var(--ink); }
 
     /* ── Sub-kategoriya dropdown (chip strelkasi bosilganda) ── */
@@ -890,14 +865,14 @@
 
     /* ── Banner karusel ── */
     /* Mahsulotlar bloki bilan bir xil kenglikda (page-body bilan mos) */
-    .banner-wrap { max-width: 1300px; margin: 16px auto 110px; padding: 0 28px; }
+    .banner-wrap { max-width: 1400px; margin: 16px auto 32px; padding: 0 28px; }
     .banner-viewport { position: relative; overflow: hidden; border-radius: 20px; box-shadow: var(--shadow-card); }
     .banner-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
-    .banner-slide { position: relative; min-width: 100%; aspect-ratio: 2.4 / 1; background: var(--bg-soft); }
+    .banner-slide { position: relative; min-width: 100%; aspect-ratio: 2 / 1; background: var(--bg-soft); }
     .banner-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .banner-title {
       position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 32px;
-      background: linear-gradient(transparent, rgba(20,20,20,0.6)); color: #fff;
+      background: linear-gradient(transparent, rgba(43,38,32,0.6)); color: #fff;
       font-family: 'Montserrat', -apple-system, sans-serif;
       font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
       line-height: 1.2;
@@ -938,7 +913,7 @@
     .detail-topbar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 18px 24px; border-bottom: 1px solid var(--line-soft);
-      position: sticky; top: 0; background: rgba(246,246,247,0.95);
+      position: sticky; top: 0; background: rgba(250,247,242,0.95);
       backdrop-filter: blur(12px); z-index: 2;
     }
     .detail-back {
@@ -994,20 +969,88 @@
       letter-spacing: -0.01em;
     }
     .detail-unit-chip.active { border-color: var(--sage); background: var(--sage-tint); color: var(--sage-deep); font-weight: 600; }
+
+    /* ── Telefon (IMEI) tovari ─────────────────────────────────────── */
+    .ph-from { font-size: 0.62em; font-weight: 500; opacity: .6; margin-left: 4px; }
+    .detail-unit-chip.ph-color { display: inline-flex; align-items: center; gap: 6px; }
+    .ph-dot {
+      width: 11px; height: 11px; border-radius: 50%;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); flex-shrink: 0;
+    }
+    .ph-dot.lg { width: 16px; height: 16px; }
+    .ph-real-color {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin: 14px 0 4px; padding: 9px 12px; border-radius: 10px;
+      background: var(--sage-tint); font-size: 13px; color: var(--ink);
+    }
+    .ph-note { font-size: 11px; opacity: .55; }
+    .ph-unit-meta { font-size: 12.5px; color: #64748b; margin-top: 6px; }
+
+    .ph-units { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .ph-unit {
+      display: flex; align-items: center; gap: 12px;
+      border: 1px solid #e6e6e6; border-radius: 12px; padding: 11px 13px;
+      transition: border-color .15s;
+    }
+    .ph-unit:hover { border-color: var(--sage); }
+    .ph-unit-l { flex: 1; min-width: 0; }
+    .ph-unit-top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .ph-cond {
+      font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px;
+      background: #fef3c7; color: #92400e;
+    }
+    .ph-cond.new { background: #dcfce7; color: #166534; }
+    .ph-bat, .ph-cyc { font-size: 11.5px; color: #64748b; }
+    .ph-imei {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11.5px; color: #94a3b8; margin-top: 3px; letter-spacing: .3px;
+    }
+    .ph-note2 { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .ph-unit-r { text-align: right; flex-shrink: 0; }
+    .ph-price { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .ph-pick {
+      margin-top: 5px; border: 0; cursor: pointer;
+      background: var(--sage); color: #fff;
+      font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 8px;
+      transition: opacity .15s;
+    }
+    .ph-pick:hover { opacity: .88; }
+    /* Telefon "son bilan" (grouped) bucketlari */
+    .ph-buckets { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .ph-bucket {
+      display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+      border: 1.5px solid #e6e6e6; border-radius: 12px; padding: 11px 13px;
+      background: #fff; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .ph-bucket:hover { border-color: var(--sage); }
+    .ph-bucket.active { border-color: var(--sage); background: color-mix(in srgb, var(--sage) 8%, #fff); }
+    .ph-bucket-l { flex: 1; min-width: 0; }
+    .ph-bucket-spec { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ph-bspec {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12.5px; font-weight: 600; color: var(--ink);
+      background: #f1f5f9; padding: 2px 8px; border-radius: 6px;
+    }
+    .ph-bucket-cnt { font-size: 11.5px; color: #64748b; margin-top: 4px; }
+    .ph-bucket-price { font-size: 15px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
+    .cart-item-imei {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 10.5px; color: #94a3b8; margin-top: 1px;
+    }
     .detail-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
     .detail-add-btn {
       flex: 1; height: 52px; border-radius: var(--radius-sm); border: none;
       background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
-      box-shadow: 0 4px 14px rgba(20,20,20,0.2); cursor: pointer;
+      box-shadow: 0 4px 14px rgba(43,38,32,0.2); cursor: pointer;
       transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
       letter-spacing: -0.01em;
     }
-    .detail-add-btn:hover:not(.btn-added):not(:disabled) { background: var(--sage); box-shadow: 0 4px 14px rgba(212,7,7,0.35); }
+    .detail-add-btn:hover:not(.btn-added):not(:disabled) { background: var(--sage); box-shadow: 0 4px 14px rgba(122,139,111,0.35); }
     .detail-add-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
-    .detail-add-btn.btn-added { background: var(--sage); color: #fff; box-shadow: 0 4px 14px rgba(212,7,7,0.4); pointer-events: none; }
+    .detail-add-btn.btn-added { background: var(--sage); color: #fff; box-shadow: 0 4px 14px rgba(122,139,111,0.4); pointer-events: none; }
     .detail-added-badge {
       display: inline-flex; align-items: center; gap: 6px;
-      background: var(--sage-tint); border: 1px solid rgba(212,7,7,0.25); border-radius: var(--radius-sm);
+      background: var(--sage-tint); border: 1px solid rgba(122,139,111,0.25); border-radius: var(--radius-sm);
       padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--sage-deep);
       margin-bottom: 22px;
     }
@@ -1019,16 +1062,6 @@
       padding-top: 22px; border-top: 1px solid var(--line-soft); margin-top: 8px; text-align: justify;
       font-weight: 400;
     }
-    /* ── Similar products rail ─────────────── */
-    .detail-similar { max-width: 1040px; margin: 0 auto; padding: 8px 28px 100px; }
-    @media (max-width: 640px) { .detail-similar { padding: 4px 18px 100px; } }
-    .detail-similar-title {
-      font-size: 12px; font-weight: 700; color: var(--ink-faint); text-transform: uppercase;
-      letter-spacing: .06em; margin: 0 0 18px; padding-top: 28px; border-top: 1px solid var(--line-soft);
-    }
-    .detail-similar-rail { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 8px; align-items: center; justify-content: center; }
-    .detail-similar-item { flex: 0 0 148px; width: 148px; }
-    @media (max-width: 640px) { .detail-similar-item { flex-basis: 128px; width: 128px; } }
     .variant-chip {
       display: flex; flex-direction: column; align-items: flex-start;
       height: auto !important; padding: 8px 14px !important;
@@ -1052,7 +1085,7 @@
     .variant-select-btn {
       flex: 1; height: 52px; border-radius: var(--radius-sm); border: none;
       background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
-      box-shadow: 0 4px 14px rgba(20,20,20,0.2); cursor: pointer;
+      box-shadow: 0 4px 14px rgba(43,38,32,0.2); cursor: pointer;
       transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
       letter-spacing: -0.01em;
     }
@@ -1091,7 +1124,7 @@
       background: var(--bg); border-radius: 28px 28px 0 0;
       max-height: 88vh; display: flex; flex-direction: column;
       overflow: hidden; max-width: 560px; margin: 0 auto;
-      box-shadow: 0 -8px 40px rgba(20,20,20,0.15);
+      box-shadow: 0 -8px 40px rgba(43,38,32,0.15);
     }
     .cart-handle { width: 40px; height: 4px; background: var(--line); border-radius: 2px; margin: 14px auto 0; }
     .cart-head-new {
@@ -1143,35 +1176,28 @@
     .cart-qty-input::-webkit-outer-spin-button,
     .cart-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .cqu { font-size: 11px; font-weight: 600; color: var(--sage-deep); }
-    .cqn {
-      width: 42px; height: 32px; text-align: center; font-size: 14px; font-weight: 600; color: var(--ink);
-      border: 1px solid var(--line); border-radius: 10px; background: var(--bg-card); outline: none;
-      -moz-appearance: textfield;
-    }
-    .cqn:focus { border-color: var(--sage); box-shadow: 0 0 0 3px var(--sage-tint); }
-    .cqn::-webkit-outer-spin-button,
-    .cqn::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .cqn { width: 28px; text-align: center; font-size: 14px; font-weight: 600; color: var(--ink); }
     .cart-divider { height: 1px; background: var(--line-soft); margin: 0 22px; }
     .cart-footer-new { padding: 18px 22px 32px; background: var(--bg); border-top: 1px solid var(--line-soft); }
     .cart-total-card {
       background: var(--sage-tint);
-      border: 1px solid rgba(212,7,7,0.2); border-radius: 16px;
+      border: 1px solid rgba(122,139,111,0.2); border-radius: 16px;
       padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
       margin-bottom: 14px;
     }
     .cart-total-lbl { font-size: 13px; color: var(--sage-deep); font-weight: 600; letter-spacing: -0.01em; }
     .cart-total-val {
       font-family: 'Montserrat', -apple-system, sans-serif;
-      font-size: 20px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em;
+      font-size: 24px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em;
     }
     .cart-checkout-btn {
       width: 100%; height: 54px; border-radius: var(--radius-sm); border: none;
       background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
-      box-shadow: 0 4px 16px rgba(20,20,20,0.2); cursor: pointer;
+      box-shadow: 0 4px 16px rgba(43,38,32,0.2); cursor: pointer;
       transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
       letter-spacing: -0.01em;
     }
-    .cart-checkout-btn:hover { background: var(--sage); box-shadow: 0 4px 16px rgba(212,7,7,0.35); }
+    .cart-checkout-btn:hover { background: var(--sage); box-shadow: 0 4px 16px rgba(122,139,111,0.35); }
     .cart-checkout-btn:disabled { background: var(--line); color: var(--ink-faint); box-shadow: none; cursor: not-allowed; }
     .cart-empty-new { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 20px; gap: 12px; }
     .cart-empty-icon { font-size: 52px; opacity: 0.5; }
@@ -1181,14 +1207,14 @@
   
     /* ── Add button override (was Tilda yellow #FBBC05, now warm charcoal) ── */
     .add-btn {
-      background: #161616 !important; color: #fff !important;
+      background: #2b2620 !important; color: #fff !important;
       border: none !important;
-      box-shadow: 0 2px 8px rgba(20,20,20,0.15) !important;
+      box-shadow: 0 2px 8px rgba(43,38,32,0.15) !important;
       font-weight: 600 !important;
     }
-    .add-btn:hover:not(:disabled) { background: #d40707 !important; box-shadow: 0 4px 14px rgba(212,7,7,0.35) !important; }
-    .add-btn:disabled { background: #e7e5e5 !important; color: #9a9a9a !important; box-shadow: none !important; }
-    .add-btn.btn-added { background: #d40707 !important; color: #fff !important; box-shadow: 0 2px 10px rgba(212,7,7,0.4) !important; }
+    .add-btn:hover:not(:disabled) { background: #7a8b6f !important; box-shadow: 0 4px 14px rgba(122,139,111,0.35) !important; }
+    .add-btn:disabled { background: #e8e2d8 !important; color: #a8a096 !important; box-shadow: none !important; }
+    .add-btn.btn-added { background: #7a8b6f !important; color: #fff !important; box-shadow: 0 2px 10px rgba(122,139,111,0.4) !important; }
 
     /* extra bottom padding for nav */
     .page-body { padding-bottom: 110px !important; }
@@ -1205,12 +1231,7 @@ const html = htm.bind(React.createElement)
 
 const { API_URL, STOREFRONT_KEY } = window.STORE_CONFIG
 const HDR = { 'Content-Type': 'application/json', 'X-Storefront-Key': STOREFRONT_KEY }
-const ACCENT = '#d40707', AD = '#a80505'
-
-// Mahsulot butunlay tugaganmi (variant/birlikdan qat'i nazar)
-const isOutOfStock = p => (p.has_variants && p.variants?.length)
-  ? !p.in_stock
-  : (p.stock_type === 'tracked' && (p.stock ?? 0) <= 0)
+const ACCENT = '#7a8b6f', AD = '#5d6e54'
 
 // Org bazaviy valyutasi — /storefront/info/ dan o'rnatiladi ('USD' yoki 'UZS').
 // USD org bo'lsa bo'sh (bazaviy) valyutali narxlar $ da chiqadi, so'm emas.
@@ -1250,50 +1271,12 @@ const fmtQty = n => Number.isInteger(+n) ? String(+n) : String(+(+n).toFixed(3))
 const PM_LABELS = { cash:'Naqd', card:'Karta', transfer:"O'tkazma", credit:'Nasiya', mixed:'Aralash', click:'Click', payme:'Payme', uzum:'Uzum', humo:'Humo', uzcard:'UzCard', installment:"Bo'lib to'lash", exchange_credit:'Ayirboshlash' }
 const pmLabel = m => PM_LABELS[m] || (m || '—')
 const media = u => !u ? '' : u.startsWith('http') ? u : API_URL.replace(/\/api\/?$/,'') + u
-// Bir xil narxdagi mahsulotni tez topish uchun taxminiy narx
-const approxPrice = p => p.units?.[0]?.price ?? p.variants?.[0]?.price ?? 0
-// O'xshash mahsulotlar: bir xil kategoriya (avval o'z kategoriyasi, keyin ota-kategoriya),
-// narxi yaqinroqlari birinchi bo'lib chiqadi. Backend chaqiruvisiz, xotiradagi ro'yxatdan.
-const similarProducts = (p, all, limit=10) => {
-  if (!p) return []
-  const sameCat = [], sameParent = []
-  for (const x of all) {
-    if (x.id === p.id) continue
-    if (p.category_id && x.category_id === p.category_id) sameCat.push(x)
-    else if (p.category_parent_id && x.category_parent_id === p.category_parent_id) sameParent.push(x)
-  }
-  const basePrice = approxPrice(p)
-  const byCloseness = list => [...list].sort((a,b) => Math.abs(approxPrice(a)-basePrice) - Math.abs(approxPrice(b)-basePrice))
-  return [...byCloseness(sameCat), ...byCloseness(sameParent)].slice(0, limit)
-}
-// Qidiruvga aniq mos kelmagan taqdirda: nom/kategoriya so'zlari mos kelgan mahsulotlarni taklif qilish
-const searchSuggestions = (query, all, limit=8) => {
-  const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
-  if (!words.length) return []
-  const scored = []
-  for (const p of all) {
-    const hay = (p.name+' '+(p.category_name||'')+' '+(p.category_parent_name||'')).toLowerCase()
-    const score = words.reduce((s,w) => s + (hay.includes(w) ? 1 : 0), 0)
-    if (score > 0) scored.push([p, score])
-  }
-  scored.sort((a,b) => b[1]-a[1])
-  return scored.slice(0, limit).map(s => s[0])
-}
-// Admin panelda banner bo'lmasa Dubai Express bannerlari ko'rsatiladi.
+// Hozircha do'konda banner yuklanmagan bo'lsa ko'rsatiladigan namuna rasmlar
 const DEMO_BANNERS = [
-  {
-    image: 'banners_img/dubai-banner-smartphones.png',
-    title: 'Yangi smartfonlar — zamonaviy tanlov',
-  },
-  {
-    image: 'banners_img/dubai-banner-accessories.png',
-    title: 'Har kun uchun kuchli aksessuarlar',
-  },
-  {
-    image: 'banners_img/dubai-banner-express-delivery.png',
-    title: 'Tezkor yetkazib berish — Dubai Express Mobile',
-  },
-]
+  'banners_img/dubai-banner-smartphones.png',
+  'banners_img/dubai-banner-accessories.png',
+  'banners_img/dubai-banner-express-delivery.png',
+].map(encodeURI)
 const api   = async (p,o={}) => { const r=await fetch(API_URL+p,{...o,headers:HDR}); if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error||'Xatolik'); return r.json() }
 
 // ── SVG Icons ──────────────────────────────────────────────────────────
@@ -1305,9 +1288,6 @@ const IX      = ({s=16}) => html`<${Ic} size=${s} sw=${2.2}><line x1="18" y1="6"
 const IChevronDown = ({s=12}) => html`<${Ic} size=${s} sw=${2.6}><path d="M6 9l6 6 6-6"/></${Ic}>`
 const ICaret  = ({s=12}) => html`<${Ic} size=${s} sw=${2.5}><polyline points="6 9 12 15 18 9"/></${Ic}>`
 const IBox    = ({s=40}) => html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="#d0d0d0" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`
-const IPin    = ({s=20}) => html`<${Ic} size=${s}><path d="M21 10c0 6.5-9 12-9 12s-9-5.5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></${Ic}>`
-const IMapIcon= ({s=20}) => html`<${Ic} size=${s}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></${Ic}>`
-const ICrosshair = ({s=20}) => html`<${Ic} size=${s}><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></${Ic}>`
 
 // ── Magic orb animation ────────────────────────────────────────────────
 function magicOrb(fromEl, toEl) {
@@ -1328,10 +1308,34 @@ function magicOrb(fromEl, toEl) {
 }
 
 // ── ProductDetail ─────────────────────────────────────────────────────
-function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProducts, setCartQty, showImages, onSelect }) {
+function ProductDetail({ product, onClose, onAdd, onAddVariant, onAddSerial, onAddBucket, cart }) {
   const p = product
   const hasVariants = !!(p.has_variants && p.variants?.length)
-  const similar = useMemo(() => similarProducts(p, allProducts||[], 10), [p, allProducts])
+  // ── Telefon (IMEI) tovari ──────────────────────────────────────────
+  // Karta = MODEL. Ichidagi nusxalar rang+xotira+region bo'yicha
+  // guruhlangan holda keladi (backend). Guruh "uniform" bo'lsa nusxalar
+  // farqsiz — mijoz shunchaki savatga qo'shadi; farq qilsa (b/u) har
+  // nusxa alohida ko'rinadi: batareya, sikl, narx.
+  const phone = p.phone && (p.phone.groups?.length || p.phone.buckets?.length) ? p.phone : null
+  // "son bilan" (grouped) — spec+narx bucket, mijoz son tanlaydi;
+  // "dona-dona" (individual) — har IMEI alohida (guruh + units)
+  const isGrouped = !!(phone && phone.mode === 'grouped')
+  const phGroups = phone && !isGrouped ? phone.groups : []
+  const phBuckets = phone && isGrouped ? (phone.buckets || []) : []
+  const [phKey, setPhKey] = useState(phGroups[0]?.key ?? null)
+  const [phBKey, setPhBKey] = useState(phBuckets[0]?.key ?? null)
+  const phSel = phone && !isGrouped ? (phGroups.find(g => g.key === phKey) || phGroups[0]) : null
+  const phBSel = phBuckets.find(b => b.key === phBKey) || phBuckets[0] || null
+  const phStorages = [...new Set(phGroups.map(g => g.storage).filter(Boolean))]
+  const phColors = phGroups.filter(g => !phSel?.storage || g.storage === phSel.storage)
+  const phRegions = phColors.filter(g => !phSel?.color || g.color === phSel.color)
+  const pickPhone = (patch) => {
+    const want = { storage: phSel?.storage, color: phSel?.color, region: phSel?.region, ...patch }
+    const g = phGroups.find(x => x.storage === want.storage && x.color === want.color && x.region === want.region)
+      || phGroups.find(x => x.storage === want.storage && x.color === want.color)
+      || phGroups.find(x => x.storage === want.storage)
+    if (g) setPhKey(g.key)
+  }
 
   const _firstInStock = hasVariants
     ? (p.variants.find(v => v.in_stock) || p.variants[0])
@@ -1404,8 +1408,11 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProduct
           ${p.category_name && html`<div className="detail-cat">${p.category_name}</div>`}
           <h1 className="detail-name">${p.name}</h1>
           <div className="detail-price">
-            ${dispOrigVal && html`<span className="price-orig-strike">${money(dispOrigVal, dispCur)}</span>`}
-            ${money(dispVal, dispCur)}
+            ${phone
+              ? html`${money(phSel?.from_cur_price ?? phSel?.from_price ?? 0, phSel?.currency ?? '')}
+                     ${(phSel?.count > 1 || phGroups.length > 1) && html`<span className="ph-from">dan</span>`}`
+              : html`${dispOrigVal && html`<span className="price-orig-strike">${money(dispOrigVal, dispCur)}</span>`}
+                     ${money(dispVal, dispCur)}`}
             ${p.discount_percent > 0 && html`<span className="disc-badge">−${Math.round(p.discount_percent)}%</span>`}
           </div>
 
@@ -1437,12 +1444,119 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProduct
                 </button>`)}
             </div>`}
 
+          <!-- ── Telefon (dona-dona): konfiguratsiya + nusxa tanlash ─── -->
+          ${phone && !isGrouped && html`
+            ${phStorages.length > 1 && html`
+              <div className="detail-unit-label">Xotira</div>
+              <div className="detail-unit-select">
+                ${phStorages.map(st => html`
+                  <button key=${st} className=${'detail-unit-chip'+(phSel?.storage===st?' active':'')}
+                    onClick=${()=>pickPhone({storage:st})}>${st}</button>`)}
+              </div>`}
+
+            ${phColors.length > 1 && html`
+              <div className="detail-unit-label">Rang</div>
+              <div className="detail-unit-select">
+                ${phColors.map(g => html`
+                  <button key=${g.key} className=${'detail-unit-chip ph-color'+(phSel?.color===g.color?' active':'')}
+                    onClick=${()=>pickPhone({storage:g.storage, color:g.color})}>
+                    ${g.color_hex && html`<i className="ph-dot" style=${{background:g.color_hex}}></i>`}
+                    ${g.color_label || 'Rang'}
+                  </button>`)}
+              </div>`}
+
+            ${phRegions.length > 1 && html`
+              <div className="detail-unit-label">Region</div>
+              <div className="detail-unit-select">
+                ${phRegions.map(g => html`
+                  <button key=${g.key} className=${'detail-unit-chip'+(phSel?.region===g.region?' active':'')}
+                    onClick=${()=>pickPhone({storage:g.storage, color:g.color, region:g.region})}>
+                    ${g.region || '—'}
+                  </button>`)}
+              </div>`}
+
+            <!-- Rasm umumiy bo'lgani uchun HAQIQIY rangni alohida ko'rsatamiz -->
+            ${phSel?.color_label && html`
+              <div className="ph-real-color">
+                ${phSel.color_hex && html`<i className="ph-dot lg" style=${{background:phSel.color_hex}}></i>`}
+                Haqiqiy rangi: <b>${phSel.color_label}</b>
+                <span className="ph-note">rasm namunaviy</span>
+              </div>`}
+
+            ${phSel && phSel.uniform
+              ? html`
+                <div className="detail-stock ok">✓ Mavjud: ${phSel.count} ta</div>
+                <div className="ph-unit-meta">
+                  ${phSel.units[0].condition_label}
+                  ${phSel.units[0].battery_health != null && html` · 🔋 ${phSel.units[0].battery_health}%`}
+                  ${phSel.units[0].battery_cycles != null && html` · ${phSel.units[0].battery_cycles} sikl`}
+                </div>
+                <div className="detail-controls">
+                  <button className="detail-add-btn" onClick=${e=>onAddSerial(p, phSel.units[0], e.currentTarget)}>
+                    Savatga qo'shish
+                  </button>
+                </div>`
+              : phSel && html`
+                <div className="detail-unit-label">Mavjud nusxalar (${phSel.count} ta)</div>
+                <div className="ph-units">
+                  ${phSel.units.map(u => html`
+                    <div key=${u.id} className="ph-unit">
+                      <div className="ph-unit-l">
+                        <div className="ph-unit-top">
+                          <span className=${'ph-cond'+(u.condition==='new'?' new':'')}>${u.condition_label}</span>
+                          ${u.battery_health != null && html`<span className="ph-bat">🔋 ${u.battery_health}%</span>`}
+                          ${u.battery_cycles != null && html`<span className="ph-cyc">${u.battery_cycles} sikl</span>`}
+                        </div>
+                        <div className="ph-imei">${u.imei_masked}</div>
+                        ${u.note && html`<div className="ph-note2">${u.note}</div>`}
+                      </div>
+                      <div className="ph-unit-r">
+                        <div className="ph-price">${money(u.cur_price ?? u.price, u.currency)}</div>
+                        <button className="ph-pick" onClick=${e=>onAddSerial(p, u, e.currentTarget)}>Tanlash</button>
+                      </div>
+                    </div>`)}
+                </div>`}
+          `}
+
+          <!-- ── Telefon (son bilan): spec+narx bucket, son tanlash ──── -->
+          ${phone && isGrouped && html`
+            <div className="detail-unit-label">Variant / narx</div>
+            <div className="ph-buckets">
+              ${phBuckets.map(b => html`
+                <button key=${b.key} className=${'ph-bucket'+(phBSel?.key===b.key?' active':'')}
+                  onClick=${()=>{setPhBKey(b.key); setQty(1)}}>
+                  <div className="ph-bucket-l">
+                    <div className="ph-bucket-spec">
+                      ${b.storage && html`<span className="ph-bspec">${b.storage}</span>`}
+                      ${b.color_label && html`<span className="ph-bspec">
+                        ${b.color_hex && html`<i className="ph-dot" style=${{background:b.color_hex}}></i>`}${b.color_label}
+                      </span>`}
+                      ${b.region && html`<span className="ph-bspec">${b.region}</span>`}
+                    </div>
+                    <div className="ph-bucket-cnt">${b.count} dona mavjud</div>
+                  </div>
+                  <div className="ph-bucket-price">${money(b.cur_price ?? b.price, b.currency)}</div>
+                </button>`)}
+            </div>
+            ${phBSel && html`
+              <div className="detail-controls">
+                <div className="detail-qty-wrap">
+                  <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.max(1,q-1))}>−</button>
+                  <span className="detail-qty-num">${qty}</span>
+                  <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.min(q+1, phBSel.count||1))}>+</button>
+                </div>
+                <button className="detail-add-btn" onClick=${e=>onAddBucket(p, phBSel, qty, e.currentTarget)}>
+                  Savatga qo'shish
+                </button>
+              </div>`}
+          `}
+
           <!-- Stock -->
           ${hasVariants && !out && selVariant?.stock != null && html`
             <div className="detail-stock ok">✓ Stokda: ${Math.floor(selVariant.stock)} ta</div>`}
           ${hasVariants && out && html`
             <div className="detail-stock out">❌ Stokda yo'q</div>`}
-          ${!hasVariants && p.stock_type === 'tracked' && html`
+          ${!hasVariants && !phone && p.stock_type === 'tracked' && html`
             <div className=${'detail-stock'+(out?' out':' ok')}>
               ${out ? '❌ Stokda yo\'q' : '✓ Stokda: '+fmtQty(maxQty)+' '+(unit?.unit_name||'dona')}
             </div>`}
@@ -1455,6 +1569,7 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProduct
             </div>`}
 
           <!-- Qty + Add -->
+          ${!phone && html`
           <div className="detail-controls">
             ${isWeight
               ? html`<div className="detail-qty-wrap weight">
@@ -1473,24 +1588,12 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, cart, allProduct
                 ? html`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Qo'shildi!`
                 : html`<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C5.18 13.55 5 13.76 5 14c0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg> ${out ? 'Stokda yo\'q' : 'Savatga qo\'shish'}`}
             </button>
-          </div>
+          </div>`}
 
           <!-- Description -->
           ${p.description && html`<p className="detail-desc">${p.description}</p>`}
         </div>
       </div>
-
-      <!-- Similar products -->
-      ${similar.length > 0 && html`
-        <div className="detail-similar">
-          <div className="detail-similar-title">O'xshash mahsulotlar</div>
-          <div className="detail-similar-rail">
-            ${similar.map(sp => html`
-              <div className="detail-similar-item" key=${sp.id}>
-                <${ProductItem} p=${sp} onAdd=${onAdd} setQty=${setCartQty} cart=${cart} showImages=${showImages} onDetail=${onSelect}/>
-              </div>`)}
-          </div>
-        </div>`}
     </div>`
 }
 
@@ -1586,42 +1689,6 @@ function BottomNav({ active, count, cartIconRef, onHome, onSearch, onCart, onDra
     </nav>`
 }
 
-// ── QuantityInput ───────────────────────────────────────────────────────
-// Keeps the text being typed locally, then applies a valid whole-number
-// quantity on blur or Enter. This lets a customer replace "1" with "10"
-// without the item disappearing while the field is temporarily empty.
-function QuantityInput({ value, max=Infinity, className, onCommit, allowDecimal=false }) {
-  const [draft, setDraft] = useState(String(fmtQty(value)))
-
-  useEffect(() => { setDraft(String(fmtQty(value))) }, [value])
-
-  const commit = () => {
-    const raw = draft.trim()
-    if (raw === '') { setDraft(String(fmtQty(value))); return }
-    const parsed = Number(raw)
-    if (!Number.isFinite(parsed)) { setDraft(String(fmtQty(value))); return }
-    const min = allowDecimal ? 0.001 : 1
-    const normalized = allowDecimal ? Math.round(parsed * 1000) / 1000 : Math.floor(parsed)
-    const next = Math.min(Math.max(min, normalized), max)
-    setDraft(String(fmtQty(next)))
-    if (next !== value) onCommit(next)
-  }
-
-  return html`<input
-    className=${className}
-    type="number"
-    inputMode=${allowDecimal ? 'decimal' : 'numeric'}
-    min=${allowDecimal ? '0.001' : '1'}
-    max=${Number.isFinite(max) ? max : undefined}
-    step=${allowDecimal ? '0.001' : '1'}
-    aria-label="Miqdor"
-    value=${draft}
-    onChange=${e => setDraft(e.target.value)}
-    onClick=${e => e.stopPropagation()}
-    onKeyDown=${e => { e.stopPropagation(); if (e.key === 'Enter') e.currentTarget.blur() }}
-    onBlur=${commit}/>`
-}
-
 // ── ProductItem ────────────────────────────────────────────────────────
 function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
   const hasVariants = !!(p.has_variants && p.variants?.length)
@@ -1635,10 +1702,9 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
 
   const unit   = !hasVariants ? (p.units?.find(u => u.unit_id === unitId) || p.units?.[0]) : null
   const mult   = unit?.multiplier || 1
-  const isWeight = isWeightUnit(unit?.unit_name)
   const maxQty = hasVariants
     ? (p.in_stock ? 1 : 0)
-    : (p.stock_type === 'tracked' ? (isWeight ? p.stock / mult : Math.floor(p.stock / mult)) : Infinity)
+    : (p.stock_type === 'tracked' ? Math.floor(p.stock / mult) : Infinity)
   const cartKey = p.id+'_'+(unit?.unit_id??'base')
   const inCart = !hasVariants ? (cart.find(x => x.key === cartKey)?.qty || 0) : 0
   const out    = hasVariants ? !p.in_stock : maxQty <= 0
@@ -1654,8 +1720,13 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
   const dispVal = hasVariants ? (p.variants[0]?.cur_price ?? displayPrice) : (unit?.cur_price ?? displayPrice)
   const dispOrigVal = hasVariants ? (p.variants[0]?.cur_original_price ?? null) : (unit?.cur_original_price ?? null)
 
+  // Telefon: karta = MODEL, narx eng arzon nusxadan. Savatga to'g'ridan-
+  // to'g'ri qo'shilmaydi — mijoz avval konfiguratsiya/nusxani tanlaydi.
+  const phone = p.phone && (p.phone.groups?.length || p.phone.buckets?.length) ? p.phone : null
+
   const handleAdd = (e) => {
     e.stopPropagation()
+    if (phone) { onDetail(p); return }
     if (out || added || hasVariants) return
     onAdd(p, unit, addBtnRef.current)
     setAdded(true)
@@ -1677,7 +1748,9 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
       <div className="product-name clamp2">${p.name}</div>
 
       <!-- Meta: stock info -->
-      ${!hasVariants && p.stock_type === 'tracked' && !out && html`
+      ${phone && !out && html`
+        <div className="product-meta">${p.stock} ta mavjud</div>`}
+      ${!phone && !hasVariants && p.stock_type === 'tracked' && !out && html`
         <div className="product-meta">${maxQty} ${unit?.unit_name||'dona'} mavjud</div>`}
       ${out && html`<div className="product-meta" style=${{color:'#e53e3e'}}>Sotib bo'lindi</div>`}
       ${hasVariants && !out && html`
@@ -1685,13 +1758,15 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
 
       <!-- Price -->
       <div className="product-price">
-        ${dispOrigVal != null && html`<span className="price-orig-strike">${hasVariants ? 'dan '+money(dispOrigVal, dispCur) : money(dispOrigVal, dispCur)}</span>`}
-        ${hasVariants ? 'dan '+money(dispVal, dispCur) : money(dispVal, dispCur)}
+        ${!phone && dispOrigVal != null && html`<span className="price-orig-strike">${hasVariants ? 'dan '+money(dispOrigVal, dispCur) : money(dispOrigVal, dispCur)}</span>`}
+        ${phone
+          ? money(phone.from_cur_price ?? phone.from_price, phone.currency ?? '') + ' dan'
+          : (hasVariants ? 'dan '+money(dispVal, dispCur) : money(dispVal, dispCur))}
         ${p.discount_percent > 0 && html`<span className="disc-badge">−${Math.round(p.discount_percent)}%</span>`}
       </div>
 
       <!-- Unit selector (non-variant only) -->
-      ${!hasVariants && p.units?.length > 1 && html`
+      ${!phone && !hasVariants && p.units?.length > 1 && html`
         <div className="unit-row" onClick=${e=>e.stopPropagation()}>
           <span className="unit-label">Birlik:</span>
           <div className="unit-select-wrap">
@@ -1714,8 +1789,7 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail }) {
             ? html`
               <div className="qty-wrap">
                 <button className="qty-btn" onClick=${e=>{e.stopPropagation();setQty(cartKey, inCart-1)}}>−</button>
-                <${QuantityInput} className="qty-num" value=${inCart} max=${maxQty} allowDecimal=${isWeight}
-                  onCommit=${qty=>setQty(cartKey, qty)}/>
+                <span className="qty-num">${fmtQty(inCart)}</span>
                 <button className="qty-btn" onClick=${e=>{e.stopPropagation(); if(maxQty===Infinity||inCart<maxQty) onAdd(p, unit, addBtnRef.current)}}>+</button>
               </div>`
             // Savatda yo'q — bitta "Savatga" tugmasi
@@ -1776,6 +1850,8 @@ function CartSheet({ open, onClose, items, setQty, remove, total, onCheckout }) 
                   </div>
                   <div className="cart-info-new">
                     <div className="cart-name-new clamp2">${it.name}${it.variant_name ? ' · '+it.variant_name : ''}</div>
+                    ${it.imei && html`<div className="cart-item-imei">${it.imei}</div>`}
+                    ${it.spec_label && html`<div className="cart-item-imei">${it.spec_label}</div>`}
                     <div className="cart-price-new">${it.currency==='USD' && it.cur_price!=null ? money(it.cur_price*it.qty, it.currency) : som(it.price*it.qty)}</div>
                     <div className="cart-unit-new">${it.currency==='USD' && it.cur_price!=null ? money(it.cur_price, it.currency) : som(it.price)} × ${fmtQty(it.qty)} ${it.unit_name}</div>
                   </div>
@@ -1792,8 +1868,7 @@ function CartSheet({ open, onClose, items, setQty, remove, total, onCheckout }) 
                           onClick=${()=>it.qty===1?remove(it.key):setQty(it.key,it.qty-1)}>
                           ${it.qty===1?html`<${IX} s=${12}/>`:html`−`}
                         </button>
-                        <${QuantityInput} className="cqn" value=${it.qty} max=${it.maxQty}
-                          onCommit=${qty=>setQty(it.key,qty)}/>
+                        <span className="cqn">${it.qty}</span>
                         <button className="cqb" onClick=${()=>setQty(it.key,it.qty+1)}>+</button>
                       </div>`}
                 </div>
@@ -1855,9 +1930,9 @@ function MapPicker({ open, initial, onPick, onClose }) {
   return html`
     <div style=${{position:'fixed',inset:0,zIndex:1000,background:'#000'}}>
       <div ref=${boxRef} style=${{position:'absolute',inset:0}}></div>
-      <div style=${{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-100%)',pointerEvents:'none',zIndex:500,color:'#e0362a'}}><${IPin} s=${38}/></div>
-      <button onClick=${onClose} style=${{position:'absolute',top:16,left:16,zIndex:600,width:44,height:44,borderRadius:22,border:'none',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 2px 10px rgba(0,0,0,.3)'}}><${IX} s=${18}/></button>
-      <button onClick=${locate} style=${{position:'absolute',right:16,bottom:190,zIndex:600,width:46,height:46,borderRadius:23,border:'none',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',boxShadow:'0 2px 10px rgba(0,0,0,.3)'}}><${ICrosshair} s=${20}/></button>
+      <div style=${{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-100%)',pointerEvents:'none',fontSize:42,zIndex:500}}>📍</div>
+      <button onClick=${onClose} style=${{position:'absolute',top:16,left:16,zIndex:600,width:44,height:44,borderRadius:22,border:'none',background:'#fff',fontSize:18,cursor:'pointer',boxShadow:'0 2px 10px rgba(0,0,0,.3)'}}>✕</button>
+      <button onClick=${locate} style=${{position:'absolute',right:16,bottom:190,zIndex:600,width:46,height:46,borderRadius:23,border:'none',background:'#fff',fontSize:20,cursor:'pointer',boxShadow:'0 2px 10px rgba(0,0,0,.3)'}}>🎯</button>
       <div style=${{position:'absolute',left:0,right:0,bottom:0,background:'#fff',borderRadius:'18px 18px 0 0',padding:'18px 20px calc(18px + env(safe-area-inset-bottom))',zIndex:600}}>
         <div style=${{fontSize:11,fontWeight:700,color:'#888',letterSpacing:.6,marginBottom:8}}>TANLANGAN JOY</div>
         <div style=${{background:'#f4f4f4',borderRadius:12,padding:14,fontSize:14,fontWeight:700,color:'#222',marginBottom:14,lineHeight:1.4}}>${loading ? 'Aniqlanmoqda...' : (addr || 'Manzil aniqlanmadi (koordinata saqlanadi)')}</div>
@@ -1936,8 +2011,8 @@ function Checkout({ open, onClose, total, totalStr, onSubmit, submitting, custom
               <input className="form-input" value=${landmark} onInput=${e=>setLandmark(e.target.value)} placeholder="Masalan: maktab yonida"/>
             </div>
             <div style=${{display:'flex',gap:10}}>
-              <button onClick=${locateMe} disabled=${locating} style=${{flex:1,height:46,borderRadius:12,border:'1.5px solid rgba(150,150,150,.35)',background:'transparent',color:'inherit',fontSize:14,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>${locating?'Aniqlanmoqda...':html`<${IPin} s=${16}/> Meni topish`}</button>
-              <button onClick=${()=>setMapOpen(true)} style=${{flex:1,height:46,borderRadius:12,border:'1.5px solid '+(lat!=null?ACCENT:'rgba(150,150,150,.35)'),background:lat!=null?ACCENT:'transparent',color:lat!=null?'#fff':'inherit',fontSize:14,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8}}><${IMapIcon} s=${16}/> Xaritadan belgilash</button>
+              <button onClick=${locateMe} disabled=${locating} style=${{flex:1,height:46,borderRadius:12,border:'1.5px solid rgba(150,150,150,.35)',background:'transparent',color:'inherit',fontSize:14,fontWeight:700,cursor:'pointer'}}>${locating?'Aniqlanmoqda...':'📍 Meni topish'}</button>
+              <button onClick=${()=>setMapOpen(true)} style=${{flex:1,height:46,borderRadius:12,border:'1.5px solid '+(lat!=null?ACCENT:'rgba(150,150,150,.35)'),background:lat!=null?ACCENT:'transparent',color:lat!=null?'#fff':'inherit',fontSize:14,fontWeight:700,cursor:'pointer'}}>🗺️ Xaritadan belgilash</button>
             </div>
             ${lat!=null && html`<div style=${{fontSize:12,color:'#16a34a',fontWeight:700,marginTop:-4}}>✓ Joylashuv belgilandi</div>`}
           `}
@@ -2231,11 +2306,8 @@ function BannerCarousel({ banners }) {
           ${banners.map((b,i) => {
             const src = typeof b === 'string' ? b : (b.image || b.url || b.photo)
             const title = typeof b === 'string' ? '' : (b.title || '')
-            // API bannerlar allaqachon absolute URL; loyiha bannerlarini esa
-            // backend media manziliga qo'shmasdan, lokal yo'ldan yuklaymiz.
-            const imageSrc = src && !src.startsWith('http') && !src.startsWith('/') ? src : media(src)
             return html`<div key=${i} className="banner-slide">
-              <img src=${imageSrc} alt=${title} loading=${i===0?'eager':'lazy'}/>
+              <img src=${media(src)} alt=${title} loading=${i===0?'eager':'lazy'}/>
               ${title && html`<div className="banner-title">${title}</div>`}
             </div>`
           })}
@@ -2380,7 +2452,7 @@ function App() {
   const topProducts = useMemo(() => {
     if (!topIds.length || !products.length) return []
     const byId = new Map(products.map(p => [p.id, p]))
-    return topIds.map(id => byId.get(id)).filter(Boolean).filter(p => !isOutOfStock(p))
+    return topIds.map(id => byId.get(id)).filter(Boolean)
   }, [topIds, products])
 
   const topCats = useMemo(()=>cats.filter(c=>!c.parentId), [cats])
@@ -2396,12 +2468,6 @@ function App() {
     if (search)      l = l.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
     return l
   }, [products, selTop, selSub, search])
-
-  // Qidiruv aniq mos kelmasa — nom/kategoriya so'zlari ustma-ust tushgan mahsulotlarni taklif qilamiz
-  const searchFallback = useMemo(() => {
-    if (!search || filtered.length > 0) return []
-    return searchSuggestions(search, products, 8)
-  }, [search, filtered, products])
 
   // "Barchasi" ko'rinishida mahsulotlarni top-kategoriya bo'yicha bo'limlarga guruhlash
   // (scroll qilganda cat-bar'da tegishli kategoriya avtomatik yoritiladi)
@@ -2470,6 +2536,49 @@ function App() {
     _orbBounce(fromEl)
   }
 
+  // Telefon nusxasi (IMEI) — har nusxa BITTA dona va o'z qatori.
+  // Bir xil modelning turli IMEI'lari birlashib ketmasligi uchun kalitga
+  // nusxa id'si kiradi.
+  function addSerialToCart(p, unit, fromEl) {
+    const key = `${p.id}_s${unit.id}`
+    setCart(c => {
+      if (c.find(x => x.key === key)) return c    // bitta telefon — bitta dona
+      return [...c, {
+        key, product_id: p.id, serial_id: unit.id,
+        unit_id: null, variant_id: null, variant_name: '',
+        unit_name: 'dona', name: p.name,
+        imei: unit.imei_masked,
+        price: unit.price, currency: unit.currency || '', cur_price: unit.cur_price,
+        qty: 1, maxQty: 1, image: p.image,
+      }]
+    })
+    _orbBounce(fromEl)
+  }
+
+  // Telefon "son bilan" (grouped) — spec+narx bucketdan N dona. IMEI'siz:
+  // buyurtma tushganda tizim o'sha bucketdan aynan N nusxani band qiladi.
+  function addBucketToCart(p, b, qty, fromEl) {
+    const key = `${p.id}_b${b.key}`
+    const max = b.count || 1
+    const add = Math.min(qty, max)
+    if (add <= 0) return
+    const specLabel = [b.storage, b.color_label, b.region].filter(Boolean).join(' · ')
+    setCart(c => {
+      const ex = c.find(x => x.key === key)
+      if (ex) { if (ex.qty >= max) return c; return c.map(x => x.key===key ? {...x, qty: Math.min(x.qty+add, max)} : x) }
+      return [...c, {
+        key, product_id: p.id,
+        base_price: b.base_price, currency: b.currency || '',
+        storage: b.storage || '', color: b.color || '', region: b.region || '',
+        unit_id: null, variant_id: null, serial_id: null, variant_name: '',
+        unit_name: 'dona', name: p.name, spec_label: specLabel,
+        price: b.price, cur_price: b.cur_price,
+        qty: add, maxQty: max, image: p.image,
+      }]
+    })
+    _orbBounce(fromEl)
+  }
+
   function addVariantToCart(p, variant, qty, fromEl) {
     const key = `${p.id}_v${variant.id}`
     const max = variant.stock != null ? Math.floor(variant.stock) : Infinity
@@ -2495,6 +2604,12 @@ function App() {
           product_id: it.product_id,
           ...(it.variant_id ? {variant_id: it.variant_id} : {}),
           ...(it.unit_id    ? {unit_id:    it.unit_id}    : {}),
+          ...(it.serial_id  ? {serial_id:  it.serial_id}  : {}),
+          // Telefon "son bilan" (grouped): IMEI'siz — bucket kimligi (spec+narx)
+          ...(it.base_price != null ? {
+            base_price: it.base_price, currency: it.currency || '',
+            storage: it.storage || '', color: it.color || '', region: it.region || '',
+          } : {}),
           qty: it.qty,
         }))
       }
@@ -2607,16 +2722,12 @@ function App() {
       ${!loading && !error && !search && selTop==null && selSub==null && topProducts.length>0 && html`
         <div className="top-rail-wrap">
           <div className="top-rail-head">
-            <h2>Top tovarlar</h2>
+            <h2>🔥 Top tovarlar</h2>
             <span className="top-rail-badge">Eng ko'p sotilgan</span>
           </div>
           <div className="top-rail">
             ${topProducts.map(p => html`
               <div className="top-rail-item" key=${p.id}>
-                <div className="top-rail-rank">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="#fff" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  TOP
-                </div>
                 <${ProductItem} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages} onDetail=${setDetail}/>
               </div>`)}
           </div>
@@ -2628,23 +2739,10 @@ function App() {
         <div className="state-emoji">😕</div>
         <div className="state-text">Xatolik yuz berdi: ${error}</div>
       </div></div>`}
-      ${!loading && !error && filtered.length===0 && searchFallback.length===0 && html`<div className="product-grid"><div className="state-center">
+      ${!loading && !error && filtered.length===0 && html`<div className="product-grid"><div className="state-center">
         <div className="state-emoji">🔍</div>
         <div className="state-text">Mahsulot topilmadi</div>
       </div></div>`}
-      ${!loading && !error && filtered.length===0 && searchFallback.length>0 && html`
-        <div>
-          <div className="state-center" style=${{padding:'56px 20px 8px'}}>
-            <div className="state-emoji">🔍</div>
-            <div className="state-text">"${search}" bo'yicha aniq mos kelmadi</div>
-          </div>
-          <div className="fallback-label">Shunga o'xshash mahsulotlar</div>
-          <div className="product-grid">
-            ${searchFallback.map(p => html`
-              <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
-                onDetail=${setDetail}/>`)}
-          </div>
-        </div>`}
 
       <!-- Grid -->
       ${!loading && !error && filtered.length>0 && groupedSections && html`
@@ -2692,11 +2790,9 @@ function App() {
       onClose=${()=>setDetail(null)}
       onAdd=${addToCart}
       onAddVariant=${addVariantToCart}
-      cart=${cart}
-      allProducts=${products}
-      setCartQty=${updQty}
-      showImages=${showImages}
-      onSelect=${setDetail}/>`}
+      onAddSerial=${addSerialToCart}
+      onAddBucket=${addBucketToCart}
+      cart=${cart}/>`}
 
     <!-- ── Category Drawer ───────────────────── -->
     <${CategoryDrawer}
@@ -2718,7 +2814,7 @@ function App() {
 
 // Mobile search button — hide on desktop, show on mobile
 const style = document.createElement('style')
-style.textContent = '.mobile-search-trigger{display:none!important}@media(max-width:640px){.mobile-search-trigger{display:flex!important}.header-search:not(.fade-in){display:none!important}.header-search.fade-in{display:flex!important}}'
+style.textContent = '.mobile-search-trigger{display:none!important}@media(max-width:640px){.mobile-search-trigger{display:flex!important}.header-search{display:none!important}}'
 document.head.appendChild(style)
 
 createRoot(document.getElementById('root')).render(html`<${App}/>`)
