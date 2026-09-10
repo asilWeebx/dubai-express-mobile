@@ -2118,6 +2118,16 @@ function Checkout({ open, onClose, total, totalStr, onSubmit, submitting, custom
   const [mapOpen, setMapOpen] = useState(false)
   const [err, setErr] = useState('')
   const courier = delivery === 'courier'
+
+  // Checkout ilova bilan birga, odatda login qilinishidan oldin mount bo'ladi.
+  // Har safar checkout ochilganda tizimga kirgan mijoz ma'lumotlarini qo'yamiz;
+  // inputlar state'da qoladi, shuning uchun mijoz ularni tahrirlay oladi.
+  useEffect(() => {
+    if (!open) return
+    setName(customer?.name || '')
+    setPhone(customer?.phone || '')
+  }, [open, customer?.name, customer?.phone])
+
   if (!open) return null
 
   const locateMe = () => {
