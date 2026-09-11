@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script>document.write('<script src="./config.js?_='+Date.now()+'"><\/script>')</script>
+  <script src="./app-utils.js"></script>
   <style>
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1282,6 +1283,7 @@ import htm from 'https://esm.sh/htm@3.1.1'
 const html = htm.bind(React.createElement)
 
 const { API_URL, STOREFRONT_KEY } = window.STORE_CONFIG
+const { matchProductsByIds } = window.AppUtils
 const HDR = { 'Content-Type': 'application/json', 'X-Storefront-Key': STOREFRONT_KEY }
 const ACCENT = '#d40707', AD = '#a80505'
 
@@ -1510,7 +1512,7 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, onAddSerial, onA
       <div className="detail-body">
         <!-- Image -->
         <div className="detail-img-side">
-          ${p.image
+          ${showImages && p.image
             ? html`<img src=${media(p.image)} alt=${p.name}/>`
             : html`<${IBox} s=${100}/>`}
         </div>
@@ -2019,9 +2021,8 @@ function CartSheet({ open, onClose, items, setQty, remove, total, onCheckout }) 
                   </div>
                   ${it.weight
                     ? html`<div className="cart-qty-ctrl">
-                        <input type="number" step="0.001" min="0" className="cart-qty-input"
-                          defaultValue=${it.qty}
-                          onChange=${e=>setQty(it.key, +e.target.value||0)}/>
+                        <${QuantityInput} className="cart-qty-input" value=${it.qty} max=${it.maxQty}
+                          allowDecimal=${true} onCommit=${qty=>setQty(it.key,qty)}/>
                         <span className="cqu">${it.unit_name}</span>
                         <button className="cqb cqb-del" onClick=${()=>remove(it.key)}><${IX} s=${12}/></button>
                       </div>`
@@ -2067,8 +2068,12 @@ function MapPicker({ open, initial, onPick, onClose }) {
     if (!open || !window.L || !boxRef.current) return
     const L = window.L
     const c = ctrRef.current
-    const map = L.map(boxRef.current, { attributionControl:false }).setView([c.lat, c.lng], 16)
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19 }).addTo(map)
+    const map = L.map(boxRef.current, { attributionControl:true }).setView([c.lat, c.lng], 16)
+    map.attributionControl.setPosition('topright')
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom:19,
+      attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map)
     mapRef.current = map
     let t
     const resolve = async () => {
@@ -2635,8 +2640,7 @@ function App() {
   // Top ID'larni yuklangan mahsulot obyektlariga bog'laymiz (rank tartibi saqlanadi)
   const topProducts = useMemo(() => {
     if (!topIds.length || !products.length) return []
-    const byId = new Map(products.map(p => [p.id, p]))
-    return topIds.map(id => byId.get(id)).filter(Boolean).filter(p => !isOutOfStock(p))
+    return matchProductsByIds(topIds, products).filter(p => !isOutOfStock(p))
   }, [topIds, products])
 
   const topCats = useMemo(()=>cats.filter(c=>!c.parentId), [cats])
