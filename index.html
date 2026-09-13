@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Dubai Express Mobile</title>
   <link rel="icon" type="image/png" href="favicon.png">
   <!-- Xarita (yetkazish joyini belgilash) — OpenStreetMap, kalitsiz -->
@@ -1065,7 +1065,7 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       font-size: 10.5px; color: #94a3b8; margin-top: 1px;
     }
-    .detail-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+    .detail-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; margin-top: 8px;}
     .detail-add-btn {
       flex: 1; height: 52px; border-radius: var(--radius-sm); border: none;
       background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
@@ -1271,6 +1271,95 @@
 
     /* extra bottom padding for nav */
     .page-body { padding-bottom: 110px !important; }
+
+    /* ── Trust / usability additions ───────────────────────── */
+    .product-card-link { display: flex; flex-direction: column; color: inherit; text-decoration: none; }
+    .product-meta.stock-ok { color: #176b4d; font-weight: 550; }
+    .product-meta.stock-low { color: #8a5a00; font-weight: 650; }
+    .product-meta.stock-out { color: #b4232c; font-weight: 650; }
+    .detail-stock.ok { color: #176b4d; }
+    .detail-stock.out { color: #b4232c; }
+    .no-image-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; color: var(--ink-faint); font-size: 10px; font-weight: 650;
+      line-height: 1.35; text-align: center;
+    }
+    .detail-topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .detail-qty-input.integer {
+      width: 58px; border-left: 1px solid var(--line-soft);
+      border-right: 1px solid var(--line-soft); border-radius: 0;
+    }
+
+    .store-explainer { max-width: 1400px; margin: 0 auto; padding: 0 28px 110px; }
+    .store-explainer-head {
+      display: flex; justify-content: space-between; align-items: end;
+      gap: 24px; margin-bottom: 22px;
+    }
+    .store-explainer-head h2 {
+      font-size: 30px; line-height: 1.1; letter-spacing: -.035em;
+    }
+    .store-explainer-head p {
+      max-width: 550px; color: var(--ink-soft); font-size: 13px; line-height: 1.65;
+    }
+    .step-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .step-card {
+      min-height: 180px; padding: 26px; border: 1px solid var(--line);
+      border-radius: 20px; background: var(--bg-card);
+    }
+    .step-no {
+      width: 34px; height: 34px; display: grid; place-items: center;
+      margin-bottom: 28px; border-radius: 50%; background: var(--sage-tint);
+      color: var(--sage-deep); font-size: 12px; font-weight: 800;
+    }
+    .step-card h3 { margin-bottom: 8px; font-size: 16px; }
+    .step-card p { color: var(--ink-soft); font-size: 12px; line-height: 1.65; }
+    .partner-panel {
+      margin-top: 18px; padding: 30px; display: flex; align-items: center;
+      justify-content: space-between; gap: 24px; border-radius: 22px; color: #fff;
+      background: linear-gradient(110deg,#161616,#391010 70%,#8d0609);
+    }
+    .partner-panel h3 { font-size: 21px; margin-bottom: 7px; }
+    .partner-panel p { color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.6; }
+    .partner-action {
+      min-height: 52px; padding: 0 24px; flex-shrink: 0; border: 0;
+      border-radius: 13px; background: var(--sage); color: #fff;
+      font-size: 14px; font-weight: 750; box-shadow: 0 10px 24px rgba(212,7,7,.28);
+      transition: transform .2s, background .2s;
+    }
+    .partner-action:hover { background: #ed1515; transform: translateY(-2px); }
+
+    .site-footer-main { color: #fff; background: #111; }
+    .footer-inner {
+      max-width: 1400px; margin: 0 auto; padding: 46px 28px 120px;
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 44px;
+    }
+    .footer-brand img {
+      width: 160px; height: 160px; object-fit: contain; display: block; padding: 12px;
+      margin-bottom: 16px; border-radius: 14px; background: #fff;
+    }
+    .footer-brand p { max-width: 440px; color: #8f8f8f; font-size: 12px; line-height: 1.65; }
+    .footer-col h3 {
+      margin-bottom: 14px; color: #777; font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase;
+    }
+    .footer-link {
+      display: block; width: fit-content; margin: 9px 0; padding: 0;
+      border: 0; background: none; color: #ddd; font-size: 12px; font-weight: 600;
+    }
+    .footer-link:hover { color: #fff; }
+
+    @media (max-width: 760px) {
+      .store-explainer { padding: 0 16px 90px; }
+      .store-explainer-head { align-items: start; flex-direction: column; }
+      .store-explainer-head h2 { font-size: 25px; }
+      .step-grid { grid-template-columns: 1fr; }
+      .step-card { min-height: auto; }
+      .partner-panel { align-items: stretch; flex-direction: column; }
+      .partner-action { width: 100%; }
+      .footer-inner { padding: 40px 20px 120px; grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1/-1; }
+      .footer-brand img { width: 132px; height: 132px; }
+    }
 
   </style>
 </head>
@@ -1495,6 +1584,14 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, onAddSerial, onA
     setTimeout(() => setAdded(false), 1400)
   }
 
+  const shareProduct = async () => {
+    const payload = { title:p.name, text:`${p.name} — Dubai Express Mobile`, url:location.href }
+    try {
+      if (navigator.share) await navigator.share(payload)
+      else if (navigator.clipboard) await navigator.clipboard.writeText(location.href)
+    } catch (_) {}
+  }
+
   useEffect(() => { document.body.style.overflow = 'hidden'; return () => { document.body.style.overflow = '' } }, [])
 
   return html`
@@ -1506,15 +1603,23 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, onAddSerial, onA
           </svg>
           Boshqa mahsulotlar
         </button>
-        <button className="detail-close-btn" onClick=${onClose}>✕</button>
+        <div className="detail-topbar-actions">
+          <button className="detail-close-btn" onClick=${shareProduct}
+            title="Mahsulot havolasini ulashish" aria-label="Mahsulot havolasini ulashish">↗</button>
+          <button className="detail-close-btn" onClick=${onClose} aria-label="Yopish">✕</button>
+        </div>
       </div>
 
       <div className="detail-body">
         <!-- Image -->
         <div className="detail-img-side">
           ${showImages && p.image
-            ? html`<img src=${media(p.image)} alt=${p.name}/>`
-            : html`<${IBox} s=${100}/>`}
+            ? html`<${React.Fragment}>
+                <img src=${media(p.image)} alt=${p.name}
+                  onError=${e=>{e.currentTarget.style.display='none';e.currentTarget.nextElementSibling.style.display='flex'}}/>
+                <div className="no-image-state" style=${{display:'none'}}><${IBox} s=${100}/><span>Mahsulot rasmi tayyorlanmoqda</span></div>
+              </${React.Fragment}>`
+            : html`<div className="no-image-state"><${IBox} s=${100}/><span>Mahsulot rasmi tayyorlanmoqda</span></div>`}
         </div>
 
         <!-- Info -->
@@ -1656,7 +1761,8 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, onAddSerial, onA
               <div className="detail-controls">
                 <div className="detail-qty-wrap">
                   <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.max(1,q-1))}>−</button>
-                  <span className="detail-qty-num">${qty}</span>
+                  <${QuantityInput} className="detail-qty-input integer" value=${qty}
+                    max=${phBSel.count||1} onCommit=${setQty}/>
                   <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.min(q+1, phBSel.count||1))}>+</button>
                 </div>
                 <button className="detail-add-btn" onClick=${e=>onAddBucket(p, phBSel, qty, e.currentTarget)}>
@@ -1694,7 +1800,8 @@ function ProductDetail({ product, onClose, onAdd, onAddVariant, onAddSerial, onA
                 </div>`
               : html`<div className="detail-qty-wrap">
                   <button className="detail-qty-btn" onClick=${()=>setQty(q=>Math.max(1,q-1))}>−</button>
-                  <span className="detail-qty-num">${qty}</span>
+                  <${QuantityInput} className="detail-qty-input integer" value=${qty}
+                    max=${maxQty===Infinity?Infinity:Math.max(1,maxQty-inCart)} onCommit=${setQty}/>
                   <button className="detail-qty-btn" onClick=${()=>setQty(q=>maxQty===Infinity?q+1:Math.min(q+1,maxQty-inCart))}>+</button>
                 </div>`}
             <button ref=${addRef} className=${'detail-add-btn'+(added?' btn-added':'')} onClick=${handleAdd} disabled=${out}>
@@ -1897,12 +2004,18 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail, storeCurren
   }
 
   return html`
-    <div className="product-item fade-up" onClick=${()=>onDetail(p)}>
+    <article className="product-item fade-up">
+      <a className="product-card-link" href=${'#product='+encodeURIComponent(p.id)}
+        aria-label=${p.name} onClick=${e=>{e.preventDefault();onDetail(p)}}>
       <!-- Image -->
       <div className="product-img-wrap">
         ${showImages && p.image
-          ? html`<img src=${media(p.image)} alt=${p.name} loading="lazy" onError=${e=>{e.target.style.display='none'}}/>`
-          : html`<${IBox} s=${48}/>`}
+          ? html`<${React.Fragment}>
+              <img src=${media(p.image)} alt=${p.name} loading="lazy"
+                onError=${e=>{e.currentTarget.style.display='none';e.currentTarget.nextElementSibling.style.display='flex'}}/>
+              <div className="no-image-state" style=${{display:'none'}}><${IBox} s=${48}/><span>Rasm tayyorlanmoqda</span></div>
+            </${React.Fragment}>`
+          : html`<div className="no-image-state"><${IBox} s=${48}/><span>Rasm tayyorlanmoqda</span></div>`}
         ${out && html`<div className="stock-out-overlay"><span className="stock-out-tag">Tugadi</span></div>`}
         ${inCart > 0 && html`<div className="in-cart-dot">${inCart}</div>`}
       </div>
@@ -1912,12 +2025,12 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail, storeCurren
 
       <!-- Meta: stock info -->
       ${phone && !out && html`
-        <div className="product-meta">${p.stock} ta mavjud</div>`}
+        <div className=${'product-meta '+(p.stock<=2?'stock-low':'stock-ok')}>${p.stock} ta mavjud</div>`}
       ${!phone && !hasVariants && p.stock_type === 'tracked' && !out && html`
-        <div className="product-meta">${maxQty} ${unit?.unit_name||'dona'} mavjud</div>`}
-      ${out && html`<div className="product-meta" style=${{color:'#e53e3e'}}>Sotib bo'lindi</div>`}
+        <div className=${'product-meta '+(maxQty<=2?'stock-low':'stock-ok')}>${maxQty} ${unit?.unit_name||'dona'} mavjud</div>`}
+      ${out && html`<div className="product-meta stock-out">Sotib bo'lindi</div>`}
       ${hasVariants && !out && html`
-        <div className="product-meta">${p.variants.filter(v=>v.in_stock).length} variant mavjud</div>`}
+        <div className="product-meta stock-ok">${p.variants.filter(v=>v.in_stock).length} variant mavjud</div>`}
 
       <!-- Price -->
       <div className="product-price">
@@ -1927,6 +2040,7 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail, storeCurren
           : (hasVariants ? 'dan '+money(dispVal, dispCur) : money(dispVal, dispCur))}
         ${p.discount_percent > 0 && html`<span className="disc-badge">−${Math.round(p.discount_percent)}%</span>`}
       </div>
+      </a>
 
       <!-- Unit selector (non-variant only) -->
       ${!phone && !hasVariants && p.units?.length > 1 && html`
@@ -1962,7 +2076,7 @@ function ProductItem({ p, onAdd, setQty, cart, showImages, onDetail, storeCurren
                 ${out ? 'Tugadi' : added ? '✓' : 'Savatga'}
               </button>`}
       </div>
-    </div>`
+    </article>`
 }
 
 // ── Skeleton ────────────────────────────────────────────────────────────
@@ -2515,6 +2629,67 @@ function BannerCarousel({ banners }) {
     </div>`
 }
 
+function StoreExplainer({ customer, onPartner }) {
+  return html`
+    <section className="store-explainer" aria-labelledby="how-title">
+      <div className="store-explainer-head">
+        <h2 id="how-title">Buyurtma berish oson</h2>
+        <p>Avval aniq model va mavjud konfiguratsiyani tanlaysiz. Buyurtma yuborilgach, do'kon tasdiqlash uchun siz bilan bog'lanadi.</p>
+      </div>
+      <div className="step-grid">
+        <article className="step-card">
+          <div className="step-no">01</div>
+          <h3>Qoldiqdan tanlang</h3>
+          <p>Modelni ochib, xotira, rang, region va mavjud bo'lsa qurilma holatini tekshiring.</p>
+        </article>
+        <article className="step-card">
+          <div className="step-no">02</div>
+          <h3>Buyurtmani yuboring</h3>
+          <p>Savatda miqdorni belgilang, kuryer yoki olib ketishni va to'lov usulini tanlang.</p>
+        </article>
+        <article className="step-card">
+          <div className="step-no">03</div>
+          <h3>Tasdiqni kuting</h3>
+          <p>Buyurtma raqami yaratiladi. Do'kon mavjudlik va topshirish tafsilotlarini tasdiqlaydi.</p>
+        </article>
+      </div>
+      <div className="partner-panel">
+        <div>
+          <h3>Do'konlar uchun tezkor xarid</h3>
+          <p>${customer
+            ? `Siz ${customer.name} uchun shaxsiy narxlarni ko'ryapsiz.`
+            : "Mavjud mijoz ID orqali kirib, shaxsiy narxlar va hisob tarixini ko'rishi mumkin."}</p>
+        </div>
+        <button className="partner-action" onClick=${onPartner}>
+          ${customer ? "Hisobimni ochish" : "Hamkor sifatida kirish"}
+        </button>
+      </div>
+    </section>`
+}
+
+function StoreFooter({ info, onCatalog, onPartner, onCart }) {
+  const storeName = info?.store || 'Dubai Express Mobile'
+  return html`
+    <footer className="site-footer-main">
+      <div className="footer-inner">
+        <div className="footer-brand">
+          <img src="logo.png" alt="Dubai Express Mobile"/>
+          <p>${storeName} onlayn katalogi. Mahsulot qoldig'i va narxlar do'kon tizimidan yuklanadi.</p>
+        </div>
+        <div className="footer-col">
+          <h3>Katalog</h3>
+          <button className="footer-link" onClick=${onCatalog}>Barcha mahsulotlar</button>
+          <button className="footer-link" onClick=${onCart}>Savat</button>
+        </div>
+        <div className="footer-col">
+          <h3>Hamkorlar</h3>
+          <button className="footer-link" onClick=${onPartner}>Shaxsiy narxlar</button>
+          <button className="footer-link" onClick=${onPartner}>Mijoz hisobiga kirish</button>
+        </div>
+      </div>
+    </footer>`
+}
+
 function App() {
   const [info,      setInfo]     = useState(null)
   const [products,  setProds]    = useState([])
@@ -2557,6 +2732,23 @@ function App() {
   const [subDropdown, setSubDropdown] = useState(null)
   const chipRefs = useRef({})
   const pageTitleRef = useRef(null)
+
+  const openProduct = p => {
+    setDetail(p)
+    history.replaceState(null, '', `${location.pathname}${location.search}#product=${encodeURIComponent(p.id)}`)
+  }
+  const closeProduct = () => {
+    setDetail(null)
+    history.replaceState(null, '', `${location.pathname}${location.search}`)
+  }
+
+  useEffect(() => {
+    if (!products.length) return
+    const id = new URLSearchParams(location.hash.replace(/^#/, '')).get('product')
+    if (!id) return
+    const matched = products.find(p => String(p.id) === String(id))
+    if (matched) setDetail(matched)
+  }, [products])
 
   useEffect(() => {
     if (!subDropdown) return
@@ -2628,7 +2820,7 @@ function App() {
         if (p.category_parent_id && p.category_parent_name && !map.has(p.category_parent_id))
           map.set(p.category_parent_id, {id:p.category_parent_id, name:p.category_parent_name, parentId:null})
       })
-      setCats([...map.values()])
+      setCats([...map.values()].sort((a,b) => a.name.localeCompare(b.name, 'uz')))
     }).catch(e=>setErr(e.message)).finally(()=>setLoad(false))
   }, [customer])
 
@@ -2853,7 +3045,7 @@ function App() {
                       ${customer.name.charAt(0).toUpperCase()}
                     </button>`
                   : html`<button className="login-btn" onClick=${()=>setLoginOpen(true)}>
-                      Kirish
+                      Hamkorlar uchun
                     </button>`}
               </div>
             </${React.Fragment}>`}
@@ -2927,7 +3119,7 @@ function App() {
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="#fff" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                   TOP
                 </div>
-                <${ProductItem} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages} onDetail=${setDetail} storeCurrency=${storeCurrency}/>
+                <${ProductItem} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages} onDetail=${openProduct} storeCurrency=${storeCurrency}/>
               </div>`)}
           </div>
         </div>`}
@@ -2952,7 +3144,7 @@ function App() {
           <div className="product-grid">
             ${searchFallback.map(p => html`
               <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
-                onDetail=${setDetail} storeCurrency=${storeCurrency}/>`)}
+                onDetail=${openProduct} storeCurrency=${storeCurrency}/>`)}
           </div>
         </div>`}
 
@@ -2966,7 +3158,7 @@ function App() {
               <div className="product-grid">
                 ${g.items.map(p => html`
                   <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
-                    onDetail=${setDetail} storeCurrency=${storeCurrency}/>`)}
+                    onDetail=${openProduct} storeCurrency=${storeCurrency}/>`)}
               </div>
             </section>`)}
         </div>`}
@@ -2974,9 +3166,19 @@ function App() {
         <div className="product-grid">
           ${filtered.map(p => html`
             <${ProductItem} key=${p.id} p=${p} onAdd=${addToCart} setQty=${updQty} cart=${cart} showImages=${showImages}
-              onDetail=${setDetail} storeCurrency=${storeCurrency}/>`)}
+              onDetail=${openProduct} storeCurrency=${storeCurrency}/>`)}
         </div>`}
     </main>
+
+    <${StoreExplainer}
+      customer=${customer}
+      onPartner=${()=>customer ? setPortal(true) : setLoginOpen(true)}/>
+
+    <${StoreFooter}
+      info=${info}
+      onCatalog=${()=>pageTitleRef.current?.scrollIntoView({behavior:'smooth',block:'start'})}
+      onPartner=${()=>customer ? setPortal(true) : setLoginOpen(true)}
+      onCart=${()=>setCartOpen(true)}/>
 
     <!-- ── Modals ──────────────────────────────────────────── -->
     <${CartSheet}
@@ -2999,7 +3201,7 @@ function App() {
     <!-- ── Product Detail ───────────────────── -->
     ${detailProd && html`<${ProductDetail}
       product=${detailProd}
-      onClose=${()=>setDetail(null)}
+      onClose=${closeProduct}
       onAdd=${addToCart}
       onAddVariant=${addVariantToCart}
       onAddSerial=${addSerialToCart}
@@ -3008,7 +3210,7 @@ function App() {
       allProducts=${products}
       setCartQty=${updQty}
       showImages=${showImages}
-      onSelect=${setDetail}
+      onSelect=${openProduct}
       storeCurrency=${storeCurrency}/>`}
 
     <!-- ── Category Drawer ───────────────────── -->
